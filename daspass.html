@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAS Pass | Sistema de Comandas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background-color: #000000; color: white; }
+        .hidden { display: none !important; }
+        /* Colores DAS Pass */
+        .das-blue { color: #2563eb; }
+        .das-red { color: #dc2626; }
+        .bg-das-blue { background-color: #2563eb; }
+        .bg-das-red { background-color: #dc2626; }
+        .border-das-blue { border-color: #2563eb; }
+        
+        .card { background: #111; border: 1px solid #333; border-radius: 12px; }
+        .btn-ready { background-color: #dc2626; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        
+        .msg-bubble { padding: 8px 12px; border-radius: 15px; margin-bottom: 5px; font-size: 12px; }
+        .msg-in { background: #222; border-left: 4px solid #2563eb; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div id="loading" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="animate-spin h-10 w-10 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p class="text-xs font-bold tracking-widest uppercase das-blue">Iniciando DAS Pass...</p>
+        </div>
+    </div>
+
+    <div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-6">
+        <div class="bg-white text-black p-8 rounded-3xl w-full max-w-sm shadow-2xl">
+            <h1 class="text-2xl font-black italic mb-1 text-center">DAS Pass</h1>
+            <p class="text-[10px] font-bold text-center das-blue uppercase mb-6 tracking-widest">Control de Salida & Mensajería</p>
+            
+            <div class="space-y-4">
+                <input type="email" id="login-email" placeholder="Usuario/Email" class="w-full p-3 bg-gray-100 border rounded-xl font-bold outline-none focus:ring-2 focus:ring-blue-600">
+                <input type="password" id="login-pass" placeholder="Contraseña" class="w-full p-3 bg-gray-50 border rounded-xl font-bold outline-none focus:ring-2 focus:ring-blue-600">
+                <button id="btn-login" class="w-full bg-black text-white p-4 rounded-xl font-bold uppercase hover:bg-blue-700 transition-all">Ingresar al Sistema</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden flex flex-col h-screen">
+        <nav class="bg-black border-b border-gray-800 p-4 flex justify-between items-center">
+            <div>
+                <span class="font-black italic text-xl">DAS Pass</span>
+                <span id="user-role-badge" class="text-[9px] bg-blue-600 px-2 py-1 rounded ml-2 uppercase font-bold">---</span>
+            </div>
+            <button id="btn-logout" class="text-gray-500 hover:text-red-500"><i class="fas fa-power-off"></i></button>
+        </nav>
+
+        <div id="view-admin" class="hidden p-4 overflow-y-auto flex-grow">
+            <h2 class="das-blue font-bold text-xs mb-4 uppercase tracking-tighter border-b border-blue-900 pb-2">Log de Actividad en Vivo</h2>
+            <div id="log-container" class="space-y-2 text-[10px] font-mono">
+                </div>
+        </div>
+
+        <div id="view-cocina" class="hidden p-4 grid grid-cols-3 gap-3">
+            <h2 class="col-span-3 text-center das-red font-black text-sm mb-2 uppercase">MARCHAR PLATOS LISTOS</h2>
+            <button onclick="markReady(1)" class="card p-6 font-black text-2xl hover:bg-blue-900">M1</button>
+            <button onclick="markReady(2)" class="card p-6 font-black text-2xl hover:bg-blue-900">M2</button>
+            <button onclick="markReady(3)" class="card p-6 font-black text-2xl hover:bg-blue-900">M3</button>
+            <button onclick="markReady(4)" class="card p-6 font-black text-2xl hover:bg-blue-900">M4</button>
+            <button onclick="markReady(5)" class="card p-6 font-black text-2xl hover:bg-blue-900">M5</button>
+            <button onclick="markReady(6)" class="card p-6 font-black text-2xl hover:bg-blue-900">M6</button>
+        </div>
+
+        <div id="view-mozo" class="hidden flex-grow flex flex-col p-4 overflow-hidden">
+            <div class="flex-grow overflow-y-auto mb-4">
+                <h2 class="das-blue font-bold text-xs mb-3 uppercase">Avisos de Cocina</h2>
+                <div id="notification-area" class="space-y-3">
+                    </div>
+            </div>
+
+            <div class="h-1/3 border-t border-gray-800 pt-4 flex flex-col">
+                <h2 class="text-[10px] font-bold text-gray-500 uppercase mb-2">Mensajería Rápida</h2>
+                <div id="chat-box" class="flex-grow overflow-y-auto mb-2 space-y-1"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Escribir mensaje..." class="flex-grow bg-gray-900 border border-gray-700 p-2 rounded-lg text-xs outline-none focus:border-blue-500">
+                    <button id="send-msg" class="bg-blue-600 px-4 rounded-lg"><i class="fas fa-paper-plane text-xs"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
+            authDomain: "das-agenda.firebaseapp.com",
+            projectId: "das-agenda",
+            storageBucket: "das-agenda.firebasestorage.app",
+            messagingSenderId: "995103851313",
+            appId: "1:995103851313:web:39a19797ab209439fde610"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userRole = ""; // 'admin', 'cocina', 'mozo'
+        let currentUserName = "";
+
+        // DETECTAR ESTADO DEL USUARIO
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Registro de conexión en Logs
+                await addDoc(collection(db, "logs"), {
+                    user: user.email,
+                    action: "Inicio de sesión",
+                    time: new Date().toLocaleTimeString()
+                });
+
+                // Determinar rol (Para este demo lo hacemos por email)
+                if(user.email.includes("admin")) userRole = "admin";
+                else if(user.email.includes("cocina")) userRole = "cocina";
+                else userRole = "mozo";
+
+                currentUserName = user.email.split('@')[0];
+                setupUI();
+            } else {
+                showScreen("login-screen");
+            }
+            document.getElementById('loading').classList.add('hidden');
+        });
+
+        const setupUI = () => {
+            showScreen("app-screen");
+            document.getElementById('user-role-badge').innerText = userRole;
+            
+            // Mostrar vistas según rol
+            document.getElementById('view-admin').classList.toggle('hidden', userRole !== 'admin');
+            document.getElementById('view-cocina').classList.toggle('hidden', userRole !== 'cocina' && userRole !== 'admin');
+            document.getElementById('view-mozo').classList.toggle('hidden', userRole !== 'mozo' && userRole !== 'admin');
+
+            // Suscribirse a logs si es admin
+            if(userRole === 'admin') {
+                onSnapshot(query(collection(db, "logs"), orderBy("time", "desc"), limit(20)), (snap) => {
+                    const cont = document.getElementById('log-container');
+                    cont.innerHTML = snap.docs.map(d => `<div class="border-b border-gray-900 pb-1">
+                        <span class="das-blue">[${d.data().time}]</span> 
+                        <span class="font-bold text-gray-300">${d.data().user}:</span> ${d.data().action}
+                    </div>`).join('');
+                });
+            }
+
+            // Suscribirse a alertas de platos (para Mozos y Adicionista)
+            onSnapshot(query(collection(db, "orders"), where("status", "==", "READY")), (snap) => {
+                const area = document.getElementById('notification-area');
+                area.innerHTML = snap.docs.map(d => `
+                    <div class="card p-4 flex justify-between items-center border-l-4 border-das-red">
+                        <div>
+                            <span class="text-[9px] font-bold text-gray-500 uppercase">PLATOS LISTOS</span>
+                            <div class="text-xl font-black italic">MESA ${d.data().mesa}</div>
+                        </div>
+                        <button onclick="finishOrder('${d.id}')" class="bg-das-red text-white p-3 rounded-xl font-bold text-xs uppercase">Retirado</button>
+                    </div>
+                `).join('');
+                if(snap.docs.length > 0) playAlert();
+            });
+
+            // Suscribirse a Chat
+            onSnapshot(query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(10)), (snap) => {
+                const chat = document.getElementById('chat-box');
+                chat.innerHTML = snap.docs.reverse().map(d => `
+                    <div class="msg-bubble msg-in">
+                        <span class="das-blue font-black uppercase text-[8px] block">${d.data().from}</span>
+                        ${d.data().text}
+                    </div>
+                `).join('');
+                chat.scrollTop = chat.scrollHeight;
+            });
+        };
+
+        // ACCIONES
+        window.markReady = async (mesaNum) => {
+            await addDoc(collection(db, "orders"), { mesa: mesaNum, status: "READY", timestamp: serverTimestamp() });
+            await addDoc(collection(db, "logs"), { user: currentUserName, action: `Mesa ${mesaNum} marcada como LISTA`, time: new Date().toLocaleTimeString() });
+        };
+
+        window.finishOrder = async (id) => {
+            await deleteDoc(doc(db, "orders", id));
+            await addDoc(collection(db, "logs"), { user: currentUserName, action: `Mesa entregada/retirada`, time: new Date().toLocaleTimeString() });
+        };
+
+        document.getElementById('send-msg').onclick = async () => {
+            const input = document.getElementById('chat-input');
+            if(!input.value) return;
+            await addDoc(collection(db, "chat"), { from: currentUserName, text: input.value, timestamp: serverTimestamp() });
+            input.value = "";
+        };
+
+        const playAlert = () => { /* Aquí podrías poner un sonido corto */ };
+        const showScreen = (id) => {
+            ['login-screen', 'app-screen'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        };
+
+        // LOGIN / LOGOUT
+        document.getElementById('btn-login').onclick = async () => {
+            const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Acceso denegado"); }
+        };
+        document.getElementById('btn-logout').onclick = () => signOut(auth);
+
+    </script>
+</body>
+</html>
