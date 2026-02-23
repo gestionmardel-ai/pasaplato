@@ -20,7 +20,6 @@
         .alerta-plato { border: 2px solid #dc2626; animation: pulseRed 1.5s infinite; }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
         
-        /* Ajuste para que el chat no flote sobre el contenido */
         #app-screen { display: flex; flex-direction: column; height: 100vh; }
         main { flex: 1; overflow-y: auto; }
     </style>
@@ -57,8 +56,8 @@
                 <div id="admin-logs" class="space-y-1 text-[10px] font-mono opacity-70 max-h-32 overflow-y-auto"></div>
             </div>
 
-            <div id="view-cocina" class="hidden">
-                <h2 class="text-center text-[10px] font-bold uppercase mb-4 text-gray-500 tracking-widest">Despacho de Cocina</h2>
+            <div id="view-cocina" class="hidden text-center">
+                <h2 class="text-[10px] font-bold uppercase mb-4 text-gray-500 tracking-widest">Botonera de Cocina</h2>
                 <div class="grid grid-cols-3 gap-3" id="botonera-cocina"></div>
             </div>
 
@@ -104,7 +103,7 @@
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             try { await signInWithEmailAndPassword(auth, email, pass); } 
-            catch (e) { alert("Acceso Denegado"); }
+            catch (e) { alert("Credenciales incorrectas"); }
         };
 
         document.getElementById('btn-salir').onclick = () => signOut(auth);
@@ -113,14 +112,10 @@
             if (user) {
                 userName = user.email.split('@')[0];
                 userRole = user.email.includes("admin") ? "admin" : (user.email.includes("cocina") ? "cocina" : "mozo");
-                
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                
-                // MOSTRAR USUARIO Y ROL EN EL HEADER
                 document.getElementById('user-display').innerText = `Sesión: ${userName}`;
                 document.getElementById('role-tag').innerText = userRole;
-                
                 iniciarApp();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -129,7 +124,6 @@
         });
 
         function iniciarApp() {
-            // Reset de vistas
             document.getElementById('view-admin').classList.add('hidden');
             document.getElementById('view-cocina').classList.add('hidden');
             document.getElementById('view-mozo').classList.add('hidden');
@@ -174,14 +168,13 @@
                     const d = doc.data();
                     lista.innerHTML += `
                         <div class="card p-4 flex justify-between items-center alerta-plato">
-                            <div><p class="text-2xl font-black">MESA ${d.mesa}</p></div>
+                            <div><p class="text-2xl font-black italic">MESA ${d.mesa}</p></div>
                             <button onclick="entregarPedido('${doc.id}')" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase">Retirar</button>
                         </div>`;
                 });
             });
         }
 
-        // CHAT CON HORA
         document.getElementById('btn-enviar').onclick = async () => {
             const input = document.getElementById('chat-input');
             if (!input.value.trim()) return;
@@ -203,9 +196,14 @@
                 snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
                     box.innerHTML += `
-                        <div class="flex justify-between items-start border-b border-gray-900 pb-1">
-                            <span><b class="das-blue uppercase">${m.user}:</b> <span class="text-gray-300">${m.text}</span></span>
-                            <span class="text-[9px] text-gray-600 font-mono mt-0.5 ml-2">${m.hora || ''}</span>
+                        <div class="flex justify-between items-center border-b border-gray-900/50 pb-1 mb-1">
+                            <span class="leading-tight">
+                                <b class="das-blue uppercase text-[10px]">${m.user}:</b> 
+                                <span class="text-gray-200 ml-1 font-bold">${m.text}</span>
+                            </span>
+                            <span class="text-[9px] text-blue-300 font-bold bg-blue-900/40 px-1.5 py-0.5 rounded ml-2">
+                                ${m.hora || '--:--'}
+                            </span>
                         </div>`;
                 });
                 box.scrollTop = box.scrollHeight;
@@ -219,7 +217,7 @@
                 cont.innerHTML = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    cont.innerHTML += `<div class="border-b border-gray-900 pb-1 mb-1"><span class="text-gray-600">[${d.hora}]</span> <b>${d.user}</b>: ${d.msg}</div>`;
+                    cont.innerHTML += `<div class="border-b border-gray-900 pb-1 mb-1"><span class="text-gray-600 font-bold text-[9px]">[${new Date().toLocaleTimeString()}]</span> <b>${d.user}</b>: ${d.msg}</div>`;
                 });
             });
         }
