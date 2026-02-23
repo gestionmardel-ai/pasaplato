@@ -18,7 +18,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 900;
             border-radius: 4px;
             transition: all 0.1s;
@@ -31,34 +31,29 @@
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        main { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        main { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 10px; }
 
-        /* Chat Blanco y Negro */
+        /* Chat de Alta Legibilidad */
         .chat-bubble {
             background: #ffffff !important;
             color: #000000 !important;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            border: 1px solid #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
         }
-        .chat-time { font-size: 8px; font-weight: 900; background: #000; color: #fff; padding: 1px 4px; border-radius: 3px; }
+        .chat-time { font-size: 10px; font-weight: 900; background: #000; color: #fff; padding: 2px 6px; border-radius: 4px; }
 
-        /* Contenedores inferiores lado a lado */
-        .footer-tools {
-            display: flex;
-            height: 180px;
-            border-top: 1px solid #1e293b;
-            background: #070d1a;
-        }
+        .footer-tools { display: flex; height: 210px; border-top: 1px solid #1e293b; background: #070d1a; }
         .footer-half { width: 50%; display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #1e293b; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="h-screen flex items-center justify-center p-6 z-50 bg-[#0a1120] absolute inset-0">
-        <div class="bg-[#1a2236] p-8 w-full max-w-sm text-center border border-slate-700 rounded-3xl shadow-2xl">
+        <div class="bg-[#1a2236] p-8 w-full max-w-sm text-center border border-slate-700 rounded-3xl">
             <h1 class="text-3xl font-black text-white italic">DASantini</h1>
             <p class="text-sky-400 font-bold text-sm mb-8 tracking-widest">Pasaplatos</p>
             <div class="space-y-4">
@@ -71,10 +66,7 @@
 
     <div id="app-screen" class="hidden h-full flex flex-col">
         <header class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center shadow-lg">
-            <div>
-                <span class="text-white font-black text-xl italic">DASantini</span>
-                <span class="text-sky-400 text-xs font-bold ml-1">Pasaplatos</span>
-            </div>
+            <div><span class="text-white font-black text-xl italic">DASantini</span><span class="text-sky-400 text-xs font-bold ml-1">Pasaplatos</span></div>
             <div class="flex items-center gap-3">
                 <div class="text-right">
                     <span id="role-tag" class="text-[7px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase">---</span>
@@ -85,11 +77,11 @@
         </header>
 
         <main>
-            <div class="bg-[#1a2236] p-3 rounded-xl border border-slate-800">
+            <div class="bg-[#1a2236] p-3 rounded-xl border border-slate-800 shadow-xl">
                 <div id="grid-tablero" class="grid-mesas"></div>
             </div>
 
-            <div id="view-mozo" class="hidden space-y-2">
+            <div id="alerta-container" class="space-y-2">
                 <h2 class="text-yellow-500 text-[10px] font-black uppercase italic flex items-center gap-2">
                     <i class="fas fa-concierge-bell"></i> Avisos de Retiro
                 </h2>
@@ -98,16 +90,16 @@
         </main>
 
         <footer class="footer-tools">
-            <div class="footer-half" id="view-admin-historial">
-                <h2 class="text-sky-500 text-[9px] font-black uppercase mb-2">Historial de Turno</h2>
+            <div class="footer-half">
+                <h2 class="text-sky-500 text-[9px] font-black uppercase mb-2 italic">Historial Operativo</h2>
                 <div id="admin-logs" class="flex-1 overflow-y-auto space-y-1 text-[9px] font-mono opacity-80"></div>
             </div>
 
             <div class="footer-half" style="border-right:none">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-2 mb-2 pr-1"></div>
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-2 pr-1"></div>
                 <div class="flex gap-1">
-                    <input type="text" id="chat-input" placeholder="Mensaje..." class="flex-grow p-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs outline-none">
-                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-3 rounded-lg text-sm"><i class="fas fa-paper-plane"></i></button>
+                    <input type="text" id="chat-input" placeholder="Chat..." class="flex-grow p-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm font-bold outline-none">
+                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </footer>
@@ -156,7 +148,6 @@
         });
 
         function iniciarApp() {
-            if (userRole === "admin" || userRole === "mozo") document.getElementById('view-mozo').classList.remove('hidden');
             dibujarTablero();
             escucharEstadosMesas();
             escucharChat();
@@ -174,10 +165,12 @@
         }
 
         window.clickMesa = async (mesaId) => {
-            if (userRole === "mozo") return;
             const mesaRef = doc(db, "estado_mesas", mesaId);
             const docSnap = await getDoc(mesaRef);
             const ahora = new Date().toLocaleTimeString('es-AR', { hour12: false });
+
+            // Solo Admin/Cocina interactúan con el tablero
+            if (userRole === "mozo") return;
 
             if (!docSnap.exists()) {
                 await setDoc(mesaRef, { estado: 'recibido', mesa: mesaId, h_recibido: ahora, user_recibido: userName });
@@ -185,6 +178,9 @@
                 const data = docSnap.data();
                 if (data.estado === 'recibido') {
                     await updateDoc(mesaRef, { estado: 'listo', h_listo: ahora, user_listo: userName });
+                } else if (data.estado === 'listo' && userRole === "admin") {
+                    // Admin entrega directo
+                    await retirarMesa(mesaId, data.h_recibido, data.user_recibido, data.h_listo, data.user_listo);
                 }
             }
         };
@@ -192,11 +188,7 @@
         window.retirarMesa = async (mesaId, hRec, uRec, hLis, uLis) => {
             const ahora = new Date().toLocaleTimeString('es-AR', { hour12: false });
             await addDoc(collection(db, "historial_tiempos"), {
-                mesa: mesaId, 
-                rec: hRec || "--", uRec: uRec || "?",
-                lis: hLis || "--", uLis: uLis || "?",
-                ret: ahora, uRet: userName,
-                timestamp: serverTimestamp()
+                mesa: mesaId, rec: hRec || "--", uRec: uRec || "?", lis: hLis || "--", uLis: uLis || "?", ret: ahora, uRet: userName, timestamp: serverTimestamp()
             });
             await deleteDoc(doc(db, "estado_mesas", mesaId));
         };
@@ -220,8 +212,8 @@
                     const data = d.data();
                     lista.innerHTML += `
                         <div class="bg-slate-800 p-2 rounded-lg flex justify-between items-center border-l-4 border-yellow-500">
-                            <span class="text-sm font-black italic ml-1">MESA ${data.mesa}</span>
-                            <button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-3 py-1 rounded font-black text-[10px]">AVISAR RETIRO</button>
+                            <span class="text-sm font-black italic ml-1 uppercase">MESA ${data.mesa}</span>
+                            <button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-4 py-2 rounded font-black text-[10px] active:scale-95">AVISAR RETIRO</button>
                         </div>`;
                 });
             });
@@ -244,9 +236,9 @@
                 let msgs = []; snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
                     box.innerHTML += `
-                        <div class="flex flex-col items-start">
-                            <div class="flex justify-between w-full px-1"><span class="text-[8px] font-black text-sky-400 uppercase">${m.user}</span><span class="chat-time">${m.hora}</span></div>
-                            <div class="chat-bubble">${m.text}</div>
+                        <div class="flex flex-col items-start space-y-1">
+                            <div class="flex justify-between w-full px-1"><span class="text-[9px] font-black text-sky-400 uppercase tracking-tighter">${m.user}</span><span class="chat-time">${m.hora}</span></div>
+                            <div class="chat-bubble w-full">${m.text}</div>
                         </div>`;
                 });
                 box.scrollTop = box.scrollHeight;
@@ -259,8 +251,8 @@
                 const cont = document.getElementById('admin-logs'); cont.innerHTML = "";
                 snap.forEach(d => {
                     const data = d.data();
-                    cont.innerHTML += `<div class="border-b border-slate-800 pb-1 mb-1 text-slate-500">
-                        <b>M#${data.mesa}</b> Entró: ${data.rec}(${data.uRec}) | Listo: ${data.lis}(${data.uLis}) | Salió: ${data.ret}(${data.uRet})
+                    cont.innerHTML += `<div class="border-b border-slate-800 pb-1 mb-1 text-slate-400 leading-tight">
+                        <b class="text-white">M#${data.mesa}</b> | E:${data.rec}(${data.uRec}) | L:${data.lis}(${data.uLis}) | S:${data.ret}(${data.uRet})
                     </div>`;
                 });
             });
