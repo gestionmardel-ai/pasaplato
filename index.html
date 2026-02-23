@@ -11,43 +11,55 @@
         :root { --bg-main: #0a1120; --card-bg: #1a2236; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #f1f5f9; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        .grid-mesas { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; }
-
+        /* Tablero más pequeño */
+        .grid-mesas { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; }
         .btn-mesa-sq {
             aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.65rem; /* Más pequeña */
             font-weight: 900;
-            border-radius: 4px;
+            border-radius: 3px;
             transition: all 0.1s;
-            border: 1px solid #334155;
+            border: 1px solid #1e293b;
         }
 
-        .estado-libre { background: #1e293b; color: #475569; }
-        .estado-recibido { background: #22c55e !important; color: white; border-color: #166534; }
-        .estado-listo { background: #eab308 !important; color: black; border-color: #a16207; animation: pulse 1.5s infinite; }
+        .estado-libre { background: #111827; color: #334155; }
+        .estado-recibido { background: #22c55e !important; color: white; border-color: #14532d; }
+        .estado-listo { background: #eab308 !important; color: black; border-color: #854d0e; animation: pulse 1.5s infinite; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        main { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 10px; }
+        main { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 8px; }
 
-        /* Chat de Alta Legibilidad */
+        /* Chat ajustado */
         .chat-bubble {
             background: #ffffff !important;
             color: #000000 !important;
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-weight: 800;
-            font-size: 1.1rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem; /* Tamaño intermedio ideal */
             border: 1px solid #cbd5e1;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
         }
-        .chat-time { font-size: 10px; font-weight: 900; background: #000; color: #fff; padding: 2px 6px; border-radius: 4px; }
+        .chat-time { font-size: 8px; font-weight: 900; background: #000; color: #fff; padding: 1px 4px; border-radius: 3px; }
 
-        .footer-tools { display: flex; height: 210px; border-top: 1px solid #1e293b; background: #070d1a; }
-        .footer-half { width: 50%; display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #1e293b; }
+        /* Footer Side-by-Side */
+        .footer-tools { display: flex; height: 190px; border-top: 1px solid #1e293b; background: #070d1a; }
+        .footer-half { width: 50%; display: flex; flex-direction: column; padding: 8px; border-right: 1px solid #1e293b; }
+
+        /* Historial más grande y claro */
+        .log-entry { 
+            font-size: 11px; /* Aumentado */
+            line-height: 1.4;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 2px;
+            margin-bottom: 2px;
+            color: #94a3b8;
+        }
+        .log-entry b { color: #f8fafc; font-weight: 800; }
+        .log-user { color: #38bdf8; font-size: 9px; }
     </style>
 </head>
 <body>
@@ -77,13 +89,13 @@
         </header>
 
         <main>
-            <div class="bg-[#1a2236] p-3 rounded-xl border border-slate-800 shadow-xl">
+            <div class="bg-[#1a2236] p-2 rounded-xl border border-slate-800 shadow-md">
                 <div id="grid-tablero" class="grid-mesas"></div>
             </div>
 
             <div id="alerta-container" class="space-y-2">
                 <h2 class="text-yellow-500 text-[10px] font-black uppercase italic flex items-center gap-2">
-                    <i class="fas fa-concierge-bell"></i> Avisos de Retiro
+                    <i class="fas fa-bell"></i> Avisos Pendientes
                 </h2>
                 <div id="lista-alertas" class="grid grid-cols-2 gap-2"></div>
             </div>
@@ -91,15 +103,15 @@
 
         <footer class="footer-tools">
             <div class="footer-half">
-                <h2 class="text-sky-500 text-[9px] font-black uppercase mb-2 italic">Historial Operativo</h2>
-                <div id="admin-logs" class="flex-1 overflow-y-auto space-y-1 text-[9px] font-mono opacity-80"></div>
+                <h2 class="text-sky-500 text-[10px] font-black uppercase mb-2 italic">Historial Turno</h2>
+                <div id="admin-logs" class="flex-1 overflow-y-auto pr-1"></div>
             </div>
 
             <div class="footer-half" style="border-right:none">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-2 pr-1"></div>
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-3 mb-2 pr-1"></div>
                 <div class="flex gap-1">
-                    <input type="text" id="chat-input" placeholder="Chat..." class="flex-grow p-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm font-bold outline-none">
-                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
+                    <input type="text" id="chat-input" placeholder="Chat..." class="flex-grow p-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold outline-none">
+                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-3 rounded-lg"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </footer>
@@ -168,10 +180,7 @@
             const mesaRef = doc(db, "estado_mesas", mesaId);
             const docSnap = await getDoc(mesaRef);
             const ahora = new Date().toLocaleTimeString('es-AR', { hour12: false });
-
-            // Solo Admin/Cocina interactúan con el tablero
             if (userRole === "mozo") return;
-
             if (!docSnap.exists()) {
                 await setDoc(mesaRef, { estado: 'recibido', mesa: mesaId, h_recibido: ahora, user_recibido: userName });
             } else {
@@ -179,7 +188,6 @@
                 if (data.estado === 'recibido') {
                     await updateDoc(mesaRef, { estado: 'listo', h_listo: ahora, user_listo: userName });
                 } else if (data.estado === 'listo' && userRole === "admin") {
-                    // Admin entrega directo
                     await retirarMesa(mesaId, data.h_recibido, data.user_recibido, data.h_listo, data.user_listo);
                 }
             }
@@ -212,8 +220,8 @@
                     const data = d.data();
                     lista.innerHTML += `
                         <div class="bg-slate-800 p-2 rounded-lg flex justify-between items-center border-l-4 border-yellow-500">
-                            <span class="text-sm font-black italic ml-1 uppercase">MESA ${data.mesa}</span>
-                            <button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-4 py-2 rounded font-black text-[10px] active:scale-95">AVISAR RETIRO</button>
+                            <span class="text-xs font-black italic ml-1">MESA ${data.mesa}</span>
+                            <button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-3 py-1 rounded font-black text-[9px]">AVISAR RETIRO</button>
                         </div>`;
                 });
             });
@@ -230,14 +238,14 @@
         };
 
         function escucharChat() {
-            const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(15));
+            const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(12));
             onSnapshot(q, (snap) => {
                 const box = document.getElementById('chat-box'); box.innerHTML = "";
                 let msgs = []; snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
                     box.innerHTML += `
                         <div class="flex flex-col items-start space-y-1">
-                            <div class="flex justify-between w-full px-1"><span class="text-[9px] font-black text-sky-400 uppercase tracking-tighter">${m.user}</span><span class="chat-time">${m.hora}</span></div>
+                            <div class="flex justify-between w-full px-1"><span class="text-[8px] font-black text-sky-400 uppercase">${m.user}</span><span class="chat-time">${m.hora}</span></div>
                             <div class="chat-bubble w-full">${m.text}</div>
                         </div>`;
                 });
@@ -251,8 +259,12 @@
                 const cont = document.getElementById('admin-logs'); cont.innerHTML = "";
                 snap.forEach(d => {
                     const data = d.data();
-                    cont.innerHTML += `<div class="border-b border-slate-800 pb-1 mb-1 text-slate-400 leading-tight">
-                        <b class="text-white">M#${data.mesa}</b> | E:${data.rec}(${data.uRec}) | L:${data.lis}(${data.uLis}) | S:${data.ret}(${data.uRet})
+                    cont.innerHTML += `
+                    <div class="log-entry">
+                        <b>Mesa ${data.mesa}</b><br>
+                        Entró: ${data.rec} <span class="log-user">(${data.uRec})</span><br>
+                        Listo: ${data.lis} <span class="log-user">(${data.uLis})</span><br>
+                        Salió: ${data.ret} <span class="log-user">(${data.uRet})</span>
                     </div>`;
                 });
             });
