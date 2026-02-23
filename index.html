@@ -3,117 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DASantini-Pasaplatos</title>
+    <title>DASantini-Pasaplatos Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        :root { --bg-main: #0a0f1a; --card-bg: #161e2d; --accent-blue: #38bdf8; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #f1f5f9; margin: 0; height: 100vh; display: flex; flex-direction: column; }
         
-        :root {
-            --bg-main: #0a0f1a;
-            --card-bg: #161e2d;
-            --accent-blue: #38bdf8;
+        /* Grilla de 12 columnas */
+        .grid-mesas { 
+            display: grid; 
+            grid-template-columns: repeat(12, 1fr); 
+            gap: 4px; 
         }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-main); 
-            color: #f1f5f9;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .header-title {
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: #ffffff;
-        }
-        .header-subtitle {
-            font-weight: 400;
-            color: var(--accent-blue);
-            font-size: 0.9rem;
-        }
-        .card { background: var(--card-bg); border: 1px solid #2d3748; border-radius: 12px; }
-        .hidden { display: none !important; }
-        
-        /* Botones de mesa más pequeños */
-        .btn-mesa {
-            padding: 1.25rem;
-            font-size: 1.25rem;
-            font-weight: 900;
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            transition: all 0.2s;
-        }
-        .btn-mesa:active { background: var(--accent-blue); color: #000; transform: scale(0.95); }
 
-        /* Alerta de platos */
-        .alerta-plato { 
-            border-left: 5px solid var(--accent-blue); 
-            background: #1e293b;
+        /* Botones Cuadrados y Estados */
+        .btn-mesa-sq {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 900;
+            border-radius: 4px;
+            transition: all 0.2s;
+            border: 1px solid #2d3748;
         }
+
+        .estado-libre { background: #1e293b; color: #64748b; }
+        .estado-recibido { background: #22c55e !important; color: white; border-color: #166534; }
+        .estado-listo { background: #eab308 !important; color: black; border-color: #a16207; animation: pulse 1.5s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         #app-screen { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         main { flex: 1; overflow-y: auto; }
-        #chat-section { background: #0f172a; border-top: 1px solid #1e293b; }
+
+        /* Chat de alto contraste */
+        .chat-bubble {
+            background: white !important;
+            color: black !important;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="h-screen flex items-center justify-center p-6">
-        <div class="card p-8 w-full max-w-sm text-center border-slate-700">
-            <h1 class="header-title">DASantini</h1>
-            <p class="header-subtitle mb-8">Pasaplatos</p>
+        <div class="card p-8 w-full max-w-sm text-center border-slate-700 bg-[#161e2d]">
+            <h1 class="text-2xl font-black text-white">DASantini</h1>
+            <p class="text-sky-400 text-sm mb-8">Pasaplatos</p>
             <div class="space-y-4">
-                <input type="email" id="log-email" placeholder="Usuario" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 font-bold text-white outline-none">
-                <input type="password" id="log-pass" placeholder="Password" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 font-bold text-white outline-none">
-                <button id="btn-ingresar" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-900 p-4 rounded-xl font-black uppercase transition-all">Entrar</button>
+                <input type="email" id="log-email" placeholder="Usuario" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 text-white outline-none font-bold">
+                <input type="password" id="log-pass" placeholder="Password" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 text-white outline-none font-bold">
+                <button id="btn-ingresar" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase">Entrar</button>
             </div>
         </div>
     </div>
 
     <div id="app-screen" class="hidden">
-        <header class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-            <div class="flex flex-col">
-                <span class="header-title">DASantini</span>
-                <span class="header-subtitle text-xs">Pasaplatos</span>
+        <header class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
+            <div>
+                <span class="text-white font-black text-lg">DASantini</span>
+                <span class="text-sky-400 text-xs ml-1">- Pasaplatos</span>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="flex flex-col items-end mr-2">
-                    <span id="role-tag" class="text-[8px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase mb-1">---</span>
-                    <span id="user-display" class="text-md font-bold text-white uppercase tracking-tight">---</span>
+            <div class="flex items-center gap-2">
+                <div class="text-right">
+                    <span id="role-tag" class="text-[7px] px-1.5 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase">---</span>
+                    <div id="user-display" class="text-sm font-bold text-white uppercase leading-none mt-1">---</div>
                 </div>
-                <button id="btn-salir" class="text-slate-400 text-2xl hover:text-white"><i class="fas fa-power-off"></i></button>
+                <button id="btn-salir" class="text-slate-400 text-xl ml-2"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
 
-        <main class="p-4 space-y-6">
-            <div id="view-admin" class="hidden space-y-4">
-                <div class="card p-4">
-                    <h2 class="text-sky-400 text-[10px] font-black uppercase mb-3 tracking-widest">Historial de Turno (Tiempos)</h2>
-                    <div id="admin-logs" class="space-y-1 text-[10px] font-mono opacity-80 max-h-40 overflow-y-auto"></div>
-                </div>
+        <main class="p-2 space-y-4">
+            <div class="card p-3">
+                <h2 class="text-[9px] font-black uppercase mb-2 text-slate-500 tracking-widest text-center">Estado General de Mesas (1-45, E1-E3)</h2>
+                <div id="grid-tablero" class="grid-mesas">
+                    </div>
             </div>
 
-            <div id="view-cocina" class="hidden">
-                <h2 class="text-[11px] font-bold uppercase mb-4 text-slate-500 text-center tracking-widest">Panel de Cocina</h2>
-                <div class="grid grid-cols-4 gap-2" id="botonera-cocina"></div>
+            <div id="view-admin" class="hidden card p-3">
+                <h2 class="text-sky-400 text-[9px] font-black uppercase mb-2 italic">Historial Operativo (24hs)</h2>
+                <div id="admin-logs" class="space-y-1 text-[9px] font-mono opacity-80 max-h-32 overflow-y-auto"></div>
             </div>
 
-            <div id="view-mozo" class="hidden space-y-4">
-                <h2 class="text-sky-400 text-[11px] font-black uppercase mb-2 tracking-widest italic">Avisos Pendientes</h2>
-                <div id="lista-alertas" class="space-y-3"></div>
+            <div id="view-mozo" class="hidden space-y-2">
+                <h2 class="text-yellow-500 text-[10px] font-black uppercase italic">⚠️ Pendientes de Retiro</h2>
+                <div id="lista-alertas" class="space-y-2"></div>
             </div>
         </main>
 
-        <section id="chat-section" class="p-3">
-            <div id="chat-box" class="h-32 overflow-y-auto mb-3 space-y-2 p-2 text-sm"></div>
+        <section class="p-3 bg-slate-950 border-t border-slate-800">
+            <div id="chat-box" class="h-32 overflow-y-auto mb-2 space-y-2"></div>
             <div class="flex gap-2">
-                <input type="text" id="chat-input" placeholder="Mensaje..." class="flex-grow p-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-medium outline-none">
-                <button id="btn-enviar" class="bg-sky-500 text-slate-900 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
+                <input type="text" id="chat-input" placeholder="Chat..." class="flex-grow p-3 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm outline-none">
+                <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
             </div>
         </section>
     </div>
@@ -121,7 +110,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, limit, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB_qivYXUASWoLB3zJcCpUOn44TokzzWro",
@@ -139,12 +128,12 @@
         let userRole = "";
         let userName = "";
 
+        // LOGIN / LOGOUT
         document.getElementById('btn-ingresar').onclick = async () => {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Error"); }
         };
-
         document.getElementById('btn-salir').onclick = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
@@ -163,101 +152,105 @@
         });
 
         function iniciarApp() {
-            document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
-            if (userRole === "admin") {
-                document.getElementById('view-admin').classList.remove('hidden');
-                document.getElementById('view-cocina').classList.remove('hidden');
-                document.getElementById('view-mozo').classList.remove('hidden');
-                escucharHistorialTiempos();
-            } else if (userRole === "cocina") {
-                document.getElementById('view-cocina').classList.remove('hidden');
-            } else {
-                document.getElementById('view-mozo').classList.remove('hidden');
-            }
-            generarBotonesCocina();
-            escucharPlatosListos();
+            if (userRole === "admin") document.getElementById('view-admin').classList.remove('hidden');
+            if (userRole === "mozo") document.getElementById('view-mozo').classList.remove('hidden');
+            
+            dibujarTablero();
+            escucharEstadosMesas();
             escucharChat();
+            escucharAlertasMozo();
+            escucharHistorialTiempos();
         }
 
-        function generarBotonesCocina() {
-            const cont = document.getElementById('botonera-cocina');
-            cont.innerHTML = "";
-            for (let i = 1; i <= 16; i++) {
-                cont.innerHTML += `<button onclick="marcarListo(${i})" class="btn-mesa">${i}</button>`;
+        // GENERAR TABLERO DE 48 MESAS
+        function dibujarTablero() {
+            const grid = document.getElementById('grid-tablero');
+            grid.innerHTML = "";
+            for (let i = 1; i <= 48; i++) {
+                let label = i <= 45 ? i : "E" + (i - 45);
+                grid.innerHTML += `<button id="mesa-${label}" onclick="clickMesa('${label}')" class="btn-mesa-sq estado-libre">${label}</button>`;
             }
         }
 
-        window.marcarListo = async (num) => {
-            const ahora = new Date();
-            await addDoc(collection(db, "pedidos"), { 
-                mesa: num, 
-                status: "LISTO", 
-                timestamp: serverTimestamp(),
-                hora_aviso: ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                chef: userName 
-            });
+        // LOGICA DE ESTADOS SEGÚN CLIC Y ROL
+        window.clickMesa = async (mesaId) => {
+            const mesaRef = doc(db, "estado_mesas", mesaId);
+            const ahora24 = new Date().toLocaleTimeString('es-AR', { hour12: false });
+
+            if (userRole === "admin") {
+                // Admin pone en VERDE (Recibido)
+                await setDoc(mesaRef, { estado: 'recibido', mesa: mesaId, hora_recibido: ahora24 });
+            } 
+            else if (userRole === "cocina") {
+                // Cocina pone en AMARILLO (Listo)
+                await updateDoc(mesaRef, { estado: 'listo', hora_listo: ahora24 });
+            }
         };
 
-        // RETIRO DE MESA: Guarda el historial de tiempos
-        window.entregarPedido = async (id, mesa, horaAviso) => {
-            const horaRetiro = new Date();
-            const textoRetiro = horaRetiro.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        // MOZO RETIRA: Vuelve a gris
+        window.retirarMesa = async (mesaId, hRecibido, hListo) => {
+            const ahora24 = new Date().toLocaleTimeString('es-AR', { hour12: false });
             
-            // Guardar en historial antes de borrar
-            await addDoc(collection(db, "historial_operaciones"), {
-                mesa: mesa,
-                aviso: horaAviso,
-                retiro: textoRetiro,
+            // 1. Guardar historial completo
+            await addDoc(collection(db, "historial_tiempos"), {
+                mesa: mesaId,
+                recibido: hRecibido || "--",
+                listo: hListo || "--",
+                retiro: ahora24,
                 mozo: userName,
                 timestamp: serverTimestamp()
             });
 
-            await deleteDoc(doc(db, "pedidos", id));
+            // 2. Resetear mesa
+            await deleteDoc(doc(db, "estado_mesas", mesaId));
         };
 
-        function escucharPlatosListos() {
-            onSnapshot(query(collection(db, "pedidos"), where("status", "==", "LISTO")), (snap) => {
+        function escucharEstadosMesas() {
+            onSnapshot(collection(db, "estado_mesas"), (snap) => {
+                // Reset visual primero
+                document.querySelectorAll('.btn-mesa-sq').forEach(b => {
+                    b.className = "btn-mesa-sq estado-libre";
+                });
+                // Aplicar estados desde DB
+                snap.forEach(d => {
+                    const data = d.data();
+                    const btn = document.getElementById(`mesa-${data.mesa}`);
+                    if (btn) {
+                        btn.className = `btn-mesa-sq estado-${data.estado}`;
+                    }
+                });
+            });
+        }
+
+        function escucharAlertasMozo() {
+            onSnapshot(query(collection(db, "estado_mesas"), where("estado", "==", "listo")), (snap) => {
                 const lista = document.getElementById('lista-alertas');
                 lista.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
+                snap.forEach(d => {
+                    const data = d.data();
                     lista.innerHTML += `
-                        <div class="card p-4 flex justify-between items-center alerta-plato">
+                        <div class="card p-3 flex justify-between items-center border-l-4 border-yellow-500 bg-slate-800">
                             <div>
-                                <span class="text-[9px] font-bold text-sky-400 uppercase">Mesa ${d.mesa}</span>
-                                <p class="text-xl font-black">LISTA PARA RETIRO</p>
-                                <span class="text-[8px] text-slate-500">Avisado: ${d.hora_aviso}</span>
+                                <p class="text-xl font-black">MESA ${data.mesa}</p>
+                                <p class="text-[9px] text-slate-400 uppercase">Listo: ${data.hora_listo}</p>
                             </div>
-                            <button onclick="entregarPedido('${doc.id}', ${d.mesa}, '${d.hora_aviso}')" class="bg-white text-black px-5 py-2 rounded-lg font-black text-xs">RETIRO</button>
+                            <button onclick="retirarMesa('${data.mesa}', '${data.hora_recibido}', '${data.hora_listo}')" class="bg-yellow-500 text-black px-4 py-2 rounded font-black text-xs">ENTREGADO</button>
                         </div>`;
                 });
             });
         }
 
-        function escucharHistorialTiempos() {
-            const q = query(collection(db, "historial_operaciones"), orderBy("timestamp", "desc"), limit(30));
-            onSnapshot(q, (snap) => {
-                const cont = document.getElementById('admin-logs');
-                cont.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    cont.innerHTML += `<div class="border-b border-slate-800 pb-1 mb-1">
-                        Mesa ${d.mesa} | Aviso: ${d.aviso} | Retiro: ${d.retiro} | Mozo: ${d.mozo}
-                    </div>`;
-                });
-            });
-        }
-
+        // CHAT MEJORADO
         document.getElementById('btn-enviar').onclick = async () => {
             const input = document.getElementById('chat-input');
             if (!input.value.trim()) return;
-            const t = input.value;
+            const msg = input.value;
             input.value = "";
             await addDoc(collection(db, "chat"), {
                 user: userName,
-                text: t,
+                text: msg,
                 timestamp: serverTimestamp(),
-                hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                hora: new Date().toLocaleTimeString('es-AR', { hour12: false, hour: '2-digit', minute: '2-digit' })
             });
         };
 
@@ -269,9 +262,30 @@
                 let msgs = [];
                 snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
-                    box.innerHTML += `<div><b class="text-sky-400 uppercase text-[10px]">${m.user}:</b> <span class="text-slate-200">${m.text}</span> <span class="text-[8px] text-slate-600">${m.hora || ''}</span></div>`;
+                    box.innerHTML += `
+                        <div class="flex flex-col items-start w-full">
+                            <div class="flex justify-between w-full text-[9px] mb-0.5 px-1">
+                                <span class="font-black text-sky-400 uppercase">${m.user}</span>
+                                <span class="font-bold text-white bg-slate-700 px-1 rounded">${m.hora}</span>
+                            </div>
+                            <div class="chat-bubble text-sm mb-2 shadow-sm">${m.text}</div>
+                        </div>`;
                 });
                 box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function escucharHistorialTiempos() {
+            const q = query(collection(db, "historial_tiempos"), orderBy("timestamp", "desc"), limit(20));
+            onSnapshot(q, (snap) => {
+                const cont = document.getElementById('admin-logs');
+                cont.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    cont.innerHTML += `<div class="border-b border-slate-800 pb-1 mb-1 text-slate-400">
+                        <b>Mesa ${data.mesa}</b> | Comanda: ${data.recibido} | Listo: ${data.listo} | Retiro: ${data.retiro}
+                    </div>`;
+                });
             });
         }
     </script>
