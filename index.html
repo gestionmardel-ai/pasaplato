@@ -3,113 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DASsantini | Pasaplatos</title>
+    <title>DASantini-Pasaplatos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
         :root {
-            --bg-color: #0f172a; /* Azul noche muy oscuro */
-            --card-bg: #1e293b;
-            --accent-blue: #38bdf8; /* Celeste eléctrico */
-            --accent-red: #f43f5e;
+            --bg-main: #0a0f1a;
+            --card-bg: #161e2d;
+            --accent-blue: #38bdf8;
         }
         body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background-color: var(--bg-color); 
-            color: #f8fafc;
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-main); 
+            color: #f1f5f9;
             margin: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
         }
-        .das-title {
-            font-weight: 900;
-            letter-spacing: -0.05em;
-            background: linear-gradient(to right, #ffffff, #38bdf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .header-title {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #ffffff;
         }
-        .card { background: var(--card-bg); border: 1px solid #334155; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
+        .header-subtitle {
+            font-weight: 400;
+            color: var(--accent-blue);
+            font-size: 0.9rem;
+        }
+        .card { background: var(--card-bg); border: 1px solid #2d3748; border-radius: 12px; }
         .hidden { display: none !important; }
         
-        /* Input y Botones */
-        .input-style { background: #0f172a !important; color: white !important; border: 2px solid #334155 !important; border-radius: 12px; }
-        .input-style:focus { border-color: var(--accent-blue) !important; }
-        
+        /* Botones de mesa más pequeños */
+        .btn-mesa {
+            padding: 1.25rem;
+            font-size: 1.25rem;
+            font-weight: 900;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .btn-mesa:active { background: var(--accent-blue); color: #000; transform: scale(0.95); }
+
         /* Alerta de platos */
         .alerta-plato { 
-            border: 3px solid var(--accent-red); 
-            animation: glowRed 1.5s infinite; 
-            background: linear-gradient(145deg, #1e293b, #450a0a);
-        }
-        @keyframes glowRed { 
-            0% { box-shadow: 0 0 5px rgba(244, 63, 94, 0.4); } 
-            50% { box-shadow: 0 0 20px rgba(244, 63, 94, 0.6); } 
-            100% { box-shadow: 0 0 5px rgba(244, 63, 94, 0.4); } 
+            border-left: 5px solid var(--accent-blue); 
+            background: #1e293b;
         }
 
-        /* Contenedores fijos */
         #app-screen { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        main { flex: 1; overflow-y: auto; padding-bottom: 20px; }
-        #chat-section { position: relative; z-index: 50; background: #1e293b; border-top: 2px solid #334155; }
+        main { flex: 1; overflow-y: auto; }
+        #chat-section { background: #0f172a; border-top: 1px solid #1e293b; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="h-screen flex items-center justify-center p-6">
-        <div class="card p-10 w-full max-w-sm text-center border-slate-700">
-            <h1 class="text-3xl das-title mb-1 italic">DASsantini</h1>
-            <p class="text-[10px] uppercase tracking-[0.5em] mb-10 text-sky-400 font-black">PASAPLATOS</p>
+        <div class="card p-8 w-full max-w-sm text-center border-slate-700">
+            <h1 class="header-title">DASantini</h1>
+            <p class="header-subtitle mb-8">Pasaplatos</p>
             <div class="space-y-4">
-                <input type="email" id="log-email" placeholder="Usuario" class="input-style w-full p-4 font-bold">
-                <input type="password" id="log-pass" placeholder="Password" class="input-style w-full p-4 font-bold">
-                <button id="btn-ingresar" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-900 p-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-sky-500/20">Entrar</button>
+                <input type="email" id="log-email" placeholder="Usuario" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 font-bold text-white outline-none">
+                <input type="password" id="log-pass" placeholder="Password" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 font-bold text-white outline-none">
+                <button id="btn-ingresar" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-900 p-4 rounded-xl font-black uppercase transition-all">Entrar</button>
             </div>
         </div>
     </div>
 
     <div id="app-screen" class="hidden">
-        <header class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center shadow-xl">
+        <header class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
             <div class="flex flex-col">
-                <span class="das-title text-xl italic uppercase">DASsantini</span>
-                <div class="flex items-center gap-2">
-                    <span class="text-[9px] font-bold text-sky-400 tracking-widest uppercase">PASAPLATOS</span>
-                    <span id="user-display" class="text-[9px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold border border-slate-700 uppercase">---</span>
-                </div>
+                <span class="header-title">DASantini</span>
+                <span class="header-subtitle text-xs">Pasaplatos</span>
             </div>
-            <div class="flex items-center gap-4">
-                <span id="role-tag" class="text-[10px] px-3 py-1 rounded-full bg-sky-500 text-slate-900 font-black uppercase tracking-tighter">---</span>
-                <button id="btn-salir" class="text-slate-500 text-2xl hover:text-rose-500"><i class="fas fa-power-off"></i></button>
+            <div class="flex items-center gap-3">
+                <div class="flex flex-col items-end mr-2">
+                    <span id="role-tag" class="text-[8px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase mb-1">---</span>
+                    <span id="user-display" class="text-md font-bold text-white uppercase tracking-tight">---</span>
+                </div>
+                <button id="btn-salir" class="text-slate-400 text-2xl hover:text-white"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
 
         <main class="p-4 space-y-6">
-            <div id="view-admin" class="hidden card p-4 border-sky-500/30">
-                <h2 class="text-sky-400 text-[10px] font-black uppercase mb-3 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-sky-500 animate-ping"></span> Monitor Sistema
-                </h2>
-                <div id="admin-logs" class="space-y-1 text-[11px] font-mono opacity-80 max-h-32 overflow-y-auto"></div>
+            <div id="view-admin" class="hidden space-y-4">
+                <div class="card p-4">
+                    <h2 class="text-sky-400 text-[10px] font-black uppercase mb-3 tracking-widest">Historial de Turno (Tiempos)</h2>
+                    <div id="admin-logs" class="space-y-1 text-[10px] font-mono opacity-80 max-h-40 overflow-y-auto"></div>
+                </div>
             </div>
 
             <div id="view-cocina" class="hidden">
-                <h2 class="text-center text-[11px] font-black uppercase mb-4 text-slate-500 tracking-widest">Enviar Aviso a Mozo</h2>
-                <div class="grid grid-cols-3 gap-3" id="botonera-cocina"></div>
+                <h2 class="text-[11px] font-bold uppercase mb-4 text-slate-500 text-center tracking-widest">Panel de Cocina</h2>
+                <div class="grid grid-cols-4 gap-2" id="botonera-cocina"></div>
             </div>
 
             <div id="view-mozo" class="hidden space-y-4">
-                <h2 class="text-rose-500 text-[11px] font-black uppercase mb-2 tracking-widest flex items-center gap-2">
-                    <i class="fas fa-bell"></i> Platos por retirar
-                </h2>
-                <div id="lista-alertas" class="space-y-4"></div>
+                <h2 class="text-sky-400 text-[11px] font-black uppercase mb-2 tracking-widest italic">Avisos Pendientes</h2>
+                <div id="lista-alertas" class="space-y-3"></div>
             </div>
         </main>
 
-        <section id="chat-section" class="p-4">
-            <div id="chat-box" class="h-40 overflow-y-auto mb-4 space-y-3 p-2 text-sm bg-slate-900/50 rounded-xl border border-slate-800"></div>
+        <section id="chat-section" class="p-3">
+            <div id="chat-box" class="h-32 overflow-y-auto mb-3 space-y-2 p-2 text-sm"></div>
             <div class="flex gap-2">
-                <input type="text" id="chat-input" placeholder="Escribir al equipo..." class="flex-grow p-4 rounded-xl text-md font-bold input-style shadow-inner">
-                <button id="btn-enviar" class="bg-sky-500 text-slate-900 w-14 h-14 rounded-xl flex items-center justify-center hover:bg-sky-400 active:scale-90 transition-all shadow-lg shadow-sky-500/20">
-                    <i class="fas fa-paper-plane text-xl"></i>
+                <input type="text" id="chat-input" placeholder="Mensaje..." class="flex-grow p-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-medium outline-none">
+                <button id="btn-enviar" class="bg-sky-500 text-slate-900 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
         </section>
@@ -118,7 +121,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB_qivYXUASWoLB3zJcCpUOn44TokzzWro",
@@ -139,8 +142,7 @@
         document.getElementById('btn-ingresar').onclick = async () => {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
-            try { await signInWithEmailAndPassword(auth, email, pass); } 
-            catch (e) { alert("Error de acceso"); }
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Error"); }
         };
 
         document.getElementById('btn-salir').onclick = () => signOut(auth);
@@ -166,6 +168,7 @@
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('view-cocina').classList.remove('hidden');
                 document.getElementById('view-mozo').classList.remove('hidden');
+                escucharHistorialTiempos();
             } else if (userRole === "cocina") {
                 document.getElementById('view-cocina').classList.remove('hidden');
             } else {
@@ -179,16 +182,36 @@
         function generarBotonesCocina() {
             const cont = document.getElementById('botonera-cocina');
             cont.innerHTML = "";
-            for (let i = 1; i <= 15; i++) {
-                cont.innerHTML += `<button onclick="marcarListo(${i})" class="card p-6 font-black text-2xl active:bg-sky-500 active:text-slate-900 transition-all border-slate-700">${i}</button>`;
+            for (let i = 1; i <= 16; i++) {
+                cont.innerHTML += `<button onclick="marcarListo(${i})" class="btn-mesa">${i}</button>`;
             }
         }
 
         window.marcarListo = async (num) => {
-            await addDoc(collection(db, "pedidos"), { mesa: num, status: "LISTO", timestamp: serverTimestamp(), chef: userName });
+            const ahora = new Date();
+            await addDoc(collection(db, "pedidos"), { 
+                mesa: num, 
+                status: "LISTO", 
+                timestamp: serverTimestamp(),
+                hora_aviso: ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                chef: userName 
+            });
         };
 
-        window.entregarPedido = async (id) => {
+        // RETIRO DE MESA: Guarda el historial de tiempos
+        window.entregarPedido = async (id, mesa, horaAviso) => {
+            const horaRetiro = new Date();
+            const textoRetiro = horaRetiro.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            // Guardar en historial antes de borrar
+            await addDoc(collection(db, "historial_operaciones"), {
+                mesa: mesa,
+                aviso: horaAviso,
+                retiro: textoRetiro,
+                mozo: userName,
+                timestamp: serverTimestamp()
+            });
+
             await deleteDoc(doc(db, "pedidos", id));
         };
 
@@ -199,13 +222,28 @@
                 snap.forEach(doc => {
                     const d = doc.data();
                     lista.innerHTML += `
-                        <div class="card p-5 flex justify-between items-center alerta-plato">
+                        <div class="card p-4 flex justify-between items-center alerta-plato">
                             <div>
-                                <span class="text-[10px] font-black text-rose-400 uppercase tracking-widest">Mesa lista</span>
-                                <p class="text-3xl font-black">MESA ${d.mesa}</p>
+                                <span class="text-[9px] font-bold text-sky-400 uppercase">Mesa ${d.mesa}</span>
+                                <p class="text-xl font-black">LISTA PARA RETIRO</p>
+                                <span class="text-[8px] text-slate-500">Avisado: ${d.hora_aviso}</span>
                             </div>
-                            <button onclick="entregarPedido('${doc.id}')" class="bg-white text-slate-900 px-6 py-3 rounded-xl font-black text-xs uppercase shadow-xl active:scale-90 transition-all">OK</button>
+                            <button onclick="entregarPedido('${doc.id}', ${d.mesa}, '${d.hora_aviso}')" class="bg-white text-black px-5 py-2 rounded-lg font-black text-xs">RETIRO</button>
                         </div>`;
+                });
+            });
+        }
+
+        function escucharHistorialTiempos() {
+            const q = query(collection(db, "historial_operaciones"), orderBy("timestamp", "desc"), limit(30));
+            onSnapshot(q, (snap) => {
+                const cont = document.getElementById('admin-logs');
+                cont.innerHTML = "";
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    cont.innerHTML += `<div class="border-b border-slate-800 pb-1 mb-1">
+                        Mesa ${d.mesa} | Aviso: ${d.aviso} | Retiro: ${d.retiro} | Mozo: ${d.mozo}
+                    </div>`;
                 });
             });
         }
@@ -213,36 +251,25 @@
         document.getElementById('btn-enviar').onclick = async () => {
             const input = document.getElementById('chat-input');
             if (!input.value.trim()) return;
-            const text = input.value;
-            input.value = ""; // Limpiar antes para mejor respuesta táctil
+            const t = input.value;
+            input.value = "";
             await addDoc(collection(db, "chat"), {
                 user: userName,
-                text: text,
+                text: t,
                 timestamp: serverTimestamp(),
                 hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
-            const box = document.getElementById('chat-box');
-            box.scrollTop = box.scrollHeight;
         };
 
         function escucharChat() {
-            const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(20));
+            const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(15));
             onSnapshot(q, (snap) => {
                 const box = document.getElementById('chat-box');
                 box.innerHTML = "";
                 let msgs = [];
                 snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
-                    box.innerHTML += `
-                        <div class="flex flex-col mb-1">
-                            <div class="flex justify-between items-center mb-0.5">
-                                <span class="text-[10px] font-black uppercase text-sky-400 tracking-tighter">${m.user}</span>
-                                <span class="text-[9px] font-bold text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">${m.hora || '--:--'}</span>
-                            </div>
-                            <div class="bg-slate-800/50 p-3 rounded-2xl rounded-tl-none border border-slate-700/50 text-slate-100 font-medium">
-                                ${m.text}
-                            </div>
-                        </div>`;
+                    box.innerHTML += `<div><b class="text-sky-400 uppercase text-[10px]">${m.user}:</b> <span class="text-slate-200">${m.text}</span> <span class="text-[8px] text-slate-600">${m.hora || ''}</span></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
