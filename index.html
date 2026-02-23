@@ -7,71 +7,74 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg-main: #0a1120; --card-bg: #1a2236; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Roboto+Mono:wght@500;700&display=swap');
+        
+        :root { --bg-main: #070b14; --card-bg: #111827; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #f1f5f9; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Tablero más pequeño */
-        .grid-mesas { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; }
+        /* Tablero en 3 filas (16 mesas por fila) */
+        .grid-mesas { 
+            display: grid; 
+            grid-template-columns: repeat(16, 1fr); 
+            gap: 3px; 
+        }
         .btn-mesa-sq {
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 1.2 / 1; /* Un poco más anchas para que el número quepa bien */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.65rem; /* Más pequeña */
+            font-size: 0.8rem;
             font-weight: 900;
-            border-radius: 3px;
-            transition: all 0.1s;
-            border: 1px solid #1e293b;
+            border-radius: 4px;
+            border: 1px solid #1f2937;
         }
 
-        .estado-libre { background: #111827; color: #334155; }
-        .estado-recibido { background: #22c55e !important; color: white; border-color: #14532d; }
-        .estado-listo { background: #eab308 !important; color: black; border-color: #854d0e; animation: pulse 1.5s infinite; }
+        /* Colores de mesa con más contraste cuando están desactivadas */
+        .estado-libre { background: #0f172a; color: #94a3b8; } /* Gris claro sobre azul muy oscuro */
+        .estado-recibido { background: #16a34a !important; color: white; border-color: #064e3b; }
+        .estado-listo { background: #facc15 !important; color: black; border-color: #a16207; animation: pulse 1.5s infinite; }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-        main { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 8px; }
+        main { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
 
-        /* Chat ajustado */
+        /* Historial con fuente más grande y clara */
+        .log-entry { 
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px; 
+            background: #1e293b50;
+            padding: 6px;
+            border-radius: 6px;
+            border-left: 3px solid #38bdf8;
+            margin-bottom: 4px;
+        }
+        .log-entry b { color: #ffffff; font-size: 14px; }
+        .log-user { color: #7dd3fc; font-weight: bold; }
+
+        /* Chat */
         .chat-bubble {
             background: #ffffff !important;
             color: #000000 !important;
             padding: 8px 12px;
             border-radius: 8px;
             font-weight: 700;
-            font-size: 0.9rem; /* Tamaño intermedio ideal */
-            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
         }
-        .chat-time { font-size: 8px; font-weight: 900; background: #000; color: #fff; padding: 1px 4px; border-radius: 3px; }
 
-        /* Footer Side-by-Side */
-        .footer-tools { display: flex; height: 190px; border-top: 1px solid #1e293b; background: #070d1a; }
-        .footer-half { width: 50%; display: flex; flex-direction: column; padding: 8px; border-right: 1px solid #1e293b; }
-
-        /* Historial más grande y claro */
-        .log-entry { 
-            font-size: 11px; /* Aumentado */
-            line-height: 1.4;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 2px;
-            margin-bottom: 2px;
-            color: #94a3b8;
-        }
-        .log-entry b { color: #f8fafc; font-weight: 800; }
-        .log-user { color: #38bdf8; font-size: 9px; }
+        .footer-tools { display: flex; height: 220px; border-top: 1px solid #1e293b; background: #0a0f1d; }
+        .footer-half { width: 50%; display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #1e293b; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="h-screen flex items-center justify-center p-6 z-50 bg-[#0a1120] absolute inset-0">
-        <div class="bg-[#1a2236] p-8 w-full max-w-sm text-center border border-slate-700 rounded-3xl">
+    <div id="login-screen" class="h-screen flex items-center justify-center p-6 z-50 bg-[#070b14] absolute inset-0">
+        <div class="bg-[#111827] p-8 w-full max-w-sm text-center border border-slate-800 rounded-3xl">
             <h1 class="text-3xl font-black text-white italic">DASantini</h1>
-            <p class="text-sky-400 font-bold text-sm mb-8 tracking-widest">Pasaplatos</p>
+            <p class="text-sky-400 font-bold text-sm mb-8 tracking-widest uppercase">Pasaplatos</p>
             <div class="space-y-4">
                 <input type="email" id="log-email" placeholder="Usuario" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 text-white outline-none font-bold">
                 <input type="password" id="log-pass" placeholder="Password" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 text-white outline-none font-bold">
-                <button id="btn-ingresar" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase">Entrar</button>
+                <button id="btn-ingresar" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase shadow-lg shadow-sky-500/20">Entrar</button>
             </div>
         </div>
     </div>
@@ -81,37 +84,39 @@
             <div><span class="text-white font-black text-xl italic">DASantini</span><span class="text-sky-400 text-xs font-bold ml-1">Pasaplatos</span></div>
             <div class="flex items-center gap-3">
                 <div class="text-right">
-                    <span id="role-tag" class="text-[7px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase">---</span>
+                    <span id="role-tag" class="text-[8px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase tracking-tighter">---</span>
                     <div id="user-display" class="text-lg font-bold text-white uppercase leading-none mt-1">---</div>
                 </div>
-                <button id="btn-salir" class="text-slate-500 text-2xl ml-2"><i class="fas fa-power-off"></i></button>
+                <button id="btn-salir" class="text-slate-500 text-2xl ml-2 hover:text-rose-500"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
 
         <main>
-            <div class="bg-[#1a2236] p-2 rounded-xl border border-slate-800 shadow-md">
+            <div id="panel-tablero" class="bg-[#111827] p-3 rounded-xl border border-slate-800 shadow-md">
+                <h2 class="text-[9px] font-black uppercase mb-2 text-slate-500 tracking-widest italic text-center">Control de Comandas (Admin)</h2>
                 <div id="grid-tablero" class="grid-mesas"></div>
             </div>
 
-            <div id="alerta-container" class="space-y-2">
-                <h2 class="text-yellow-500 text-[10px] font-black uppercase italic flex items-center gap-2">
-                    <i class="fas fa-bell"></i> Avisos Pendientes
+            <div id="alerta-container" class="space-y-3">
+                <h2 class="text-yellow-500 text-xs font-black uppercase italic flex items-center gap-2">
+                    <i class="fas fa-concierge-bell"></i> Platos Listos para Retirar
                 </h2>
-                <div id="lista-alertas" class="grid grid-cols-2 gap-2"></div>
+                <div id="lista-alertas" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    </div>
             </div>
         </main>
 
         <footer class="footer-tools">
             <div class="footer-half">
-                <h2 class="text-sky-500 text-[10px] font-black uppercase mb-2 italic">Historial Turno</h2>
-                <div id="admin-logs" class="flex-1 overflow-y-auto pr-1"></div>
+                <h2 class="text-sky-500 text-[10px] font-black uppercase mb-2 italic tracking-widest">Historial de Turno</h2>
+                <div id="admin-logs" class="flex-1 overflow-y-auto pr-2 space-y-2"></div>
             </div>
 
             <div class="footer-half" style="border-right:none">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-3 mb-2 pr-1"></div>
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-2 pr-1"></div>
                 <div class="flex gap-1">
-                    <input type="text" id="chat-input" placeholder="Chat..." class="flex-grow p-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-bold outline-none">
-                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-3 rounded-lg"><i class="fas fa-paper-plane"></i></button>
+                    <input type="text" id="chat-input" placeholder="Mensaje..." class="flex-grow p-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm font-bold outline-none">
+                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-4 rounded-xl shadow-lg"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </footer>
@@ -140,7 +145,7 @@
         document.getElementById('btn-ingresar').onclick = async () => {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
-            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Error"); }
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Acceso denegado"); }
         };
         document.getElementById('btn-salir').onclick = () => signOut(auth);
 
@@ -165,6 +170,10 @@
             escucharChat();
             escucharAlertasMozo();
             escucharHistorialTiempos();
+            // Si es mozo, ocultamos el tablero para que solo vea sus alertas
+            if(userRole === "mozo") {
+                document.getElementById('panel-tablero').style.display = 'none';
+            }
         }
 
         function dibujarTablero() {
@@ -177,16 +186,17 @@
         }
 
         window.clickMesa = async (mesaId) => {
+            if (userRole === "mozo") return;
             const mesaRef = doc(db, "estado_mesas", mesaId);
             const docSnap = await getDoc(mesaRef);
             const ahora = new Date().toLocaleTimeString('es-AR', { hour12: false });
-            if (userRole === "mozo") return;
+
             if (!docSnap.exists()) {
-                await setDoc(mesaRef, { estado: 'recibido', mesa: mesaId, h_recibido: ahora, user_recibido: userName });
+                await setDoc(mesaRef, { estado: 'recibido', mesa: mesaId, h_recibido: ahora, user_recibido: userName, timestamp_listo: 0 });
             } else {
                 const data = docSnap.data();
                 if (data.estado === 'recibido') {
-                    await updateDoc(mesaRef, { estado: 'listo', h_listo: ahora, user_listo: userName });
+                    await updateDoc(mesaRef, { estado: 'listo', h_listo: ahora, user_listo: userName, timestamp_listo: Date.now() });
                 } else if (data.estado === 'listo' && userRole === "admin") {
                     await retirarMesa(mesaId, data.h_recibido, data.user_recibido, data.h_listo, data.user_listo);
                 }
@@ -213,15 +223,20 @@
         }
 
         function escucharAlertasMozo() {
-            onSnapshot(query(collection(db, "estado_mesas"), where("estado", "==", "listo")), (snap) => {
+            // Orden descendente por el tiempo en que se puso "listo"
+            const q = query(collection(db, "estado_mesas"), where("estado", "==", "listo"), orderBy("timestamp_listo", "desc"));
+            onSnapshot(q, (snap) => {
                 const lista = document.getElementById('lista-alertas');
                 lista.innerHTML = "";
                 snap.forEach(d => {
                     const data = d.data();
                     lista.innerHTML += `
-                        <div class="bg-slate-800 p-2 rounded-lg flex justify-between items-center border-l-4 border-yellow-500">
-                            <span class="text-xs font-black italic ml-1">MESA ${data.mesa}</span>
-                            <button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-3 py-1 rounded font-black text-[9px]">AVISAR RETIRO</button>
+                        <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border-l-4 border-yellow-500 shadow-lg">
+                            <div>
+                                <span class="text-2xl font-black italic text-white uppercase">MESA ${data.mesa}</span>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">Listo: ${data.h_listo} por ${data.user_listo}</div>
+                            </div>
+                            <button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-6 py-3 rounded-xl font-black text-xs active:scale-95 transition-all shadow-lg shadow-yellow-500/20">RETIRADO</button>
                         </div>`;
                 });
             });
@@ -245,8 +260,8 @@
                 msgs.reverse().forEach(m => {
                     box.innerHTML += `
                         <div class="flex flex-col items-start space-y-1">
-                            <div class="flex justify-between w-full px-1"><span class="text-[8px] font-black text-sky-400 uppercase">${m.user}</span><span class="chat-time">${m.hora}</span></div>
-                            <div class="chat-bubble w-full">${m.text}</div>
+                            <div class="flex justify-between w-full px-1"><span class="text-[9px] font-black text-sky-400 uppercase">${m.user}</span><span class="chat-time">${m.hora}</span></div>
+                            <div class="chat-bubble w-full shadow-md">${m.text}</div>
                         </div>`;
                 });
                 box.scrollTop = box.scrollHeight;
@@ -254,14 +269,14 @@
         }
 
         function escucharHistorialTiempos() {
-            const q = query(collection(db, "historial_tiempos"), orderBy("timestamp", "desc"), limit(25));
+            const q = query(collection(db, "historial_tiempos"), orderBy("timestamp", "desc"), limit(20));
             onSnapshot(q, (snap) => {
                 const cont = document.getElementById('admin-logs'); cont.innerHTML = "";
                 snap.forEach(d => {
                     const data = d.data();
                     cont.innerHTML += `
                     <div class="log-entry">
-                        <b>Mesa ${data.mesa}</b><br>
+                        <b>MESA ${data.mesa}</b><br>
                         Entró: ${data.rec} <span class="log-user">(${data.uRec})</span><br>
                         Listo: ${data.lis} <span class="log-user">(${data.uLis})</span><br>
                         Salió: ${data.ret} <span class="log-user">(${data.uRet})</span>
