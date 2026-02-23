@@ -2,77 +2,114 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAS PASS | Pasaplatos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DASsantini | Pasaplatos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background-color: #000000; color: #ffffff; }
-        .das-blue { color: #2563eb; }
-        .das-red { color: #dc2626; }
-        .bg-das-blue { background-color: #2563eb; }
-        .bg-das-red { background-color: #dc2626; }
-        .card { background: #0a0a0a; border: 1px solid #1f2937; border-radius: 12px; }
+        :root {
+            --bg-color: #0f172a; /* Azul noche muy oscuro */
+            --card-bg: #1e293b;
+            --accent-blue: #38bdf8; /* Celeste eléctrico */
+            --accent-red: #f43f5e;
+        }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            color: #f8fafc;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .das-title {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            background: linear-gradient(to right, #ffffff, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card { background: var(--card-bg); border: 1px solid #334155; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
         .hidden { display: none !important; }
-        input { background: #111 !important; color: white !important; border: 1px solid #333 !important; outline: none; }
         
-        /* Animación para platos listos */
-        .alerta-plato { border: 2px solid #dc2626; animation: pulseRed 1.5s infinite; }
-        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+        /* Input y Botones */
+        .input-style { background: #0f172a !important; color: white !important; border: 2px solid #334155 !important; border-radius: 12px; }
+        .input-style:focus { border-color: var(--accent-blue) !important; }
         
-        #app-screen { display: flex; flex-direction: column; height: 100vh; }
-        main { flex: 1; overflow-y: auto; }
+        /* Alerta de platos */
+        .alerta-plato { 
+            border: 3px solid var(--accent-red); 
+            animation: glowRed 1.5s infinite; 
+            background: linear-gradient(145deg, #1e293b, #450a0a);
+        }
+        @keyframes glowRed { 
+            0% { box-shadow: 0 0 5px rgba(244, 63, 94, 0.4); } 
+            50% { box-shadow: 0 0 20px rgba(244, 63, 94, 0.6); } 
+            100% { box-shadow: 0 0 5px rgba(244, 63, 94, 0.4); } 
+        }
+
+        /* Contenedores fijos */
+        #app-screen { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        main { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+        #chat-section { position: relative; z-index: 50; background: #1e293b; border-top: 2px solid #334155; }
     </style>
 </head>
-<body class="overflow-hidden">
+<body>
 
-    <div id="login-screen" class="h-screen flex items-center justify-center p-6 bg-black">
-        <div class="card p-8 w-full max-w-sm text-center border-gray-800">
-            <h1 class="text-3xl font-black italic mb-1 tracking-tighter text-white">DAS <span class="das-blue">PASS</span></h1>
-            <p class="text-[9px] uppercase tracking-[0.4em] mb-8 text-gray-500 font-bold">Control Operativo</p>
-            <div class="space-y-3">
-                <input type="email" id="log-email" placeholder="Usuario (mozo/cocina/admin)" class="w-full p-4 rounded-xl font-bold text-sm">
-                <input type="password" id="log-pass" placeholder="Password" class="w-full p-4 rounded-xl font-bold text-sm">
-                <button id="btn-ingresar" class="w-full bg-das-blue text-white p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all">Ingresar</button>
+    <div id="login-screen" class="h-screen flex items-center justify-center p-6">
+        <div class="card p-10 w-full max-w-sm text-center border-slate-700">
+            <h1 class="text-3xl das-title mb-1 italic">DASsantini</h1>
+            <p class="text-[10px] uppercase tracking-[0.5em] mb-10 text-sky-400 font-black">PASAPLATOS</p>
+            <div class="space-y-4">
+                <input type="email" id="log-email" placeholder="Usuario" class="input-style w-full p-4 font-bold">
+                <input type="password" id="log-pass" placeholder="Password" class="input-style w-full p-4 font-bold">
+                <button id="btn-ingresar" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-900 p-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg shadow-sky-500/20">Entrar</button>
             </div>
         </div>
     </div>
 
     <div id="app-screen" class="hidden">
-        <header class="p-4 border-b border-gray-900 flex justify-between items-center bg-black">
+        <header class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center shadow-xl">
             <div class="flex flex-col">
-                <span class="font-black italic text-xl tracking-tighter">DAS <span class="das-blue">PASS</span></span>
-                <span id="user-display" class="text-[10px] font-bold text-gray-400 uppercase mt-[-4px]">Sesión: ---</span>
+                <span class="das-title text-xl italic uppercase">DASsantini</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-bold text-sky-400 tracking-widest uppercase">PASAPLATOS</span>
+                    <span id="user-display" class="text-[9px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold border border-slate-700 uppercase">---</span>
+                </div>
             </div>
-            <div class="flex items-center gap-3">
-                <span id="role-tag" class="text-[8px] px-2 py-1 rounded bg-das-blue text-white font-black uppercase tracking-tighter">---</span>
-                <button id="btn-salir" class="text-gray-600 text-[18px] hover:text-red-500"><i class="fas fa-power-off"></i></button>
+            <div class="flex items-center gap-4">
+                <span id="role-tag" class="text-[10px] px-3 py-1 rounded-full bg-sky-500 text-slate-900 font-black uppercase tracking-tighter">---</span>
+                <button id="btn-salir" class="text-slate-500 text-2xl hover:text-rose-500"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
 
         <main class="p-4 space-y-6">
-            <div id="view-admin" class="hidden card p-4 border-dashed border-blue-900/50">
-                <h2 class="das-blue text-[10px] font-black uppercase mb-3 tracking-widest">Monitor de Actividad</h2>
-                <div id="admin-logs" class="space-y-1 text-[10px] font-mono opacity-70 max-h-32 overflow-y-auto"></div>
+            <div id="view-admin" class="hidden card p-4 border-sky-500/30">
+                <h2 class="text-sky-400 text-[10px] font-black uppercase mb-3 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-500 animate-ping"></span> Monitor Sistema
+                </h2>
+                <div id="admin-logs" class="space-y-1 text-[11px] font-mono opacity-80 max-h-32 overflow-y-auto"></div>
             </div>
 
-            <div id="view-cocina" class="hidden text-center">
-                <h2 class="text-[10px] font-bold uppercase mb-4 text-gray-500 tracking-widest">Botonera de Cocina</h2>
+            <div id="view-cocina" class="hidden">
+                <h2 class="text-center text-[11px] font-black uppercase mb-4 text-slate-500 tracking-widest">Enviar Aviso a Mozo</h2>
                 <div class="grid grid-cols-3 gap-3" id="botonera-cocina"></div>
             </div>
 
             <div id="view-mozo" class="hidden space-y-4">
-                <h2 class="das-red text-[10px] font-black uppercase mb-2 tracking-widest">Pendientes de Retiro</h2>
-                <div id="lista-alertas" class="space-y-3"></div>
+                <h2 class="text-rose-500 text-[11px] font-black uppercase mb-2 tracking-widest flex items-center gap-2">
+                    <i class="fas fa-bell"></i> Platos por retirar
+                </h2>
+                <div id="lista-alertas" class="space-y-4"></div>
             </div>
         </main>
 
-        <section class="p-4 bg-[#050505] border-t border-gray-900">
-            <div id="chat-box" class="h-32 overflow-y-auto mb-3 space-y-2 p-1 text-[11px]"></div>
+        <section id="chat-section" class="p-4">
+            <div id="chat-box" class="h-40 overflow-y-auto mb-4 space-y-3 p-2 text-sm bg-slate-900/50 rounded-xl border border-slate-800"></div>
             <div class="flex gap-2">
-                <input type="text" id="chat-input" placeholder="Escribir mensaje..." class="flex-grow p-3 rounded-xl text-xs font-bold border-gray-800">
-                <button id="btn-enviar" class="bg-das-blue text-white w-12 h-10 rounded-xl flex items-center justify-center hover:bg-blue-600 active:scale-95 transition-all">
-                    <i class="fas fa-paper-plane text-xs"></i>
+                <input type="text" id="chat-input" placeholder="Escribir al equipo..." class="flex-grow p-4 rounded-xl text-md font-bold input-style shadow-inner">
+                <button id="btn-enviar" class="bg-sky-500 text-slate-900 w-14 h-14 rounded-xl flex items-center justify-center hover:bg-sky-400 active:scale-90 transition-all shadow-lg shadow-sky-500/20">
+                    <i class="fas fa-paper-plane text-xl"></i>
                 </button>
             </div>
         </section>
@@ -103,7 +140,7 @@
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
             try { await signInWithEmailAndPassword(auth, email, pass); } 
-            catch (e) { alert("Credenciales incorrectas"); }
+            catch (e) { alert("Error de acceso"); }
         };
 
         document.getElementById('btn-salir').onclick = () => signOut(auth);
@@ -114,7 +151,7 @@
                 userRole = user.email.includes("admin") ? "admin" : (user.email.includes("cocina") ? "cocina" : "mozo");
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                document.getElementById('user-display').innerText = `Sesión: ${userName}`;
+                document.getElementById('user-display').innerText = userName;
                 document.getElementById('role-tag').innerText = userRole;
                 iniciarApp();
             } else {
@@ -124,21 +161,16 @@
         });
 
         function iniciarApp() {
-            document.getElementById('view-admin').classList.add('hidden');
-            document.getElementById('view-cocina').classList.add('hidden');
-            document.getElementById('view-mozo').classList.add('hidden');
-
+            document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
             if (userRole === "admin") {
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('view-cocina').classList.remove('hidden');
                 document.getElementById('view-mozo').classList.remove('hidden');
-                cargarLogsAdmin();
             } else if (userRole === "cocina") {
                 document.getElementById('view-cocina').classList.remove('hidden');
             } else {
                 document.getElementById('view-mozo').classList.remove('hidden');
             }
-
             generarBotonesCocina();
             escucharPlatosListos();
             escucharChat();
@@ -148,7 +180,7 @@
             const cont = document.getElementById('botonera-cocina');
             cont.innerHTML = "";
             for (let i = 1; i <= 15; i++) {
-                cont.innerHTML += `<button onclick="marcarListo(${i})" class="card p-5 font-black text-xl active:bg-blue-900 transition-all">${i}</button>`;
+                cont.innerHTML += `<button onclick="marcarListo(${i})" class="card p-6 font-black text-2xl active:bg-sky-500 active:text-slate-900 transition-all border-slate-700">${i}</button>`;
             }
         }
 
@@ -167,9 +199,12 @@
                 snap.forEach(doc => {
                     const d = doc.data();
                     lista.innerHTML += `
-                        <div class="card p-4 flex justify-between items-center alerta-plato">
-                            <div><p class="text-2xl font-black italic">MESA ${d.mesa}</p></div>
-                            <button onclick="entregarPedido('${doc.id}')" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase">Retirar</button>
+                        <div class="card p-5 flex justify-between items-center alerta-plato">
+                            <div>
+                                <span class="text-[10px] font-black text-rose-400 uppercase tracking-widest">Mesa lista</span>
+                                <p class="text-3xl font-black">MESA ${d.mesa}</p>
+                            </div>
+                            <button onclick="entregarPedido('${doc.id}')" class="bg-white text-slate-900 px-6 py-3 rounded-xl font-black text-xs uppercase shadow-xl active:scale-90 transition-all">OK</button>
                         </div>`;
                 });
             });
@@ -178,17 +213,20 @@
         document.getElementById('btn-enviar').onclick = async () => {
             const input = document.getElementById('chat-input');
             if (!input.value.trim()) return;
+            const text = input.value;
+            input.value = ""; // Limpiar antes para mejor respuesta táctil
             await addDoc(collection(db, "chat"), {
                 user: userName,
-                text: input.value,
+                text: text,
                 timestamp: serverTimestamp(),
                 hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
-            input.value = "";
+            const box = document.getElementById('chat-box');
+            box.scrollTop = box.scrollHeight;
         };
 
         function escucharChat() {
-            const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(15));
+            const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(20));
             onSnapshot(q, (snap) => {
                 const box = document.getElementById('chat-box');
                 box.innerHTML = "";
@@ -196,29 +234,17 @@
                 snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
                     box.innerHTML += `
-                        <div class="flex justify-between items-center border-b border-gray-900/50 pb-1 mb-1">
-                            <span class="leading-tight">
-                                <b class="das-blue uppercase text-[10px]">${m.user}:</b> 
-                                <span class="text-gray-200 ml-1 font-bold">${m.text}</span>
-                            </span>
-                            <span class="text-[9px] text-blue-300 font-bold bg-blue-900/40 px-1.5 py-0.5 rounded ml-2">
-                                ${m.hora || '--:--'}
-                            </span>
+                        <div class="flex flex-col mb-1">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <span class="text-[10px] font-black uppercase text-sky-400 tracking-tighter">${m.user}</span>
+                                <span class="text-[9px] font-bold text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">${m.hora || '--:--'}</span>
+                            </div>
+                            <div class="bg-slate-800/50 p-3 rounded-2xl rounded-tl-none border border-slate-700/50 text-slate-100 font-medium">
+                                ${m.text}
+                            </div>
                         </div>`;
                 });
                 box.scrollTop = box.scrollHeight;
-            });
-        }
-
-        function cargarLogsAdmin() {
-            const q = query(collection(db, "logs"), orderBy("timestamp", "desc"), limit(20));
-            onSnapshot(q, (snap) => {
-                const cont = document.getElementById('admin-logs');
-                cont.innerHTML = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    cont.innerHTML += `<div class="border-b border-gray-900 pb-1 mb-1"><span class="text-gray-600 font-bold text-[9px]">[${new Date().toLocaleTimeString()}]</span> <b>${d.user}</b>: ${d.msg}</div>`;
-                });
             });
         }
     </script>
