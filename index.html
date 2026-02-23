@@ -15,65 +15,61 @@
         .card { background: #0a0a0a; border: 1px solid #1f2937; border-radius: 12px; }
         .hidden { display: none !important; }
         input { background: #111 !important; color: white !important; border: 1px solid #333 !important; outline: none; }
-        input:focus { border-color: #2563eb !important; }
         
         /* Animación para platos listos */
         .alerta-plato { border: 2px solid #dc2626; animation: pulseRed 1.5s infinite; }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+        
+        /* Ajuste para que el chat no flote sobre el contenido */
+        #app-screen { display: flex; flex-direction: column; height: 100vh; }
+        main { flex: 1; overflow-y: auto; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="overflow-hidden">
 
-    <div id="login-screen" class="flex-grow flex items-center justify-center p-6 bg-black">
+    <div id="login-screen" class="h-screen flex items-center justify-center p-6 bg-black">
         <div class="card p-8 w-full max-w-sm text-center border-gray-800">
             <h1 class="text-3xl font-black italic mb-1 tracking-tighter text-white">DAS <span class="das-blue">PASS</span></h1>
             <p class="text-[9px] uppercase tracking-[0.4em] mb-8 text-gray-500 font-bold">Control Operativo</p>
-            
             <div class="space-y-3">
                 <input type="email" id="log-email" placeholder="Usuario (mozo/cocina/admin)" class="w-full p-4 rounded-xl font-bold text-sm">
                 <input type="password" id="log-pass" placeholder="Password" class="w-full p-4 rounded-xl font-bold text-sm">
-                <button id="btn-ingresar" class="w-full bg-das-blue text-white p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/20">
-                    Ingresar
-                </button>
+                <button id="btn-ingresar" class="w-full bg-das-blue text-white p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all">Ingresar</button>
             </div>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden flex flex-col h-full">
+    <div id="app-screen" class="hidden">
         <header class="p-4 border-b border-gray-900 flex justify-between items-center bg-black">
-            <div>
+            <div class="flex flex-col">
                 <span class="font-black italic text-xl tracking-tighter">DAS <span class="das-blue">PASS</span></span>
-                <span id="role-tag" class="ml-2 text-[8px] px-2 py-1 rounded bg-das-blue text-white font-black uppercase">---</span>
+                <span id="user-display" class="text-[10px] font-bold text-gray-400 uppercase mt-[-4px]">Sesión: ---</span>
             </div>
-            <button id="btn-salir" class="text-gray-600 text-[10px] font-bold uppercase hover:text-red-500 transition-colors">Cerrar Sesión</button>
+            <div class="flex items-center gap-3">
+                <span id="role-tag" class="text-[8px] px-2 py-1 rounded bg-das-blue text-white font-black uppercase tracking-tighter">---</span>
+                <button id="btn-salir" class="text-gray-600 text-[18px] hover:text-red-500"><i class="fas fa-power-off"></i></button>
+            </div>
         </header>
 
-        <main class="flex-grow overflow-y-auto p-4 space-y-6">
-            
+        <main class="p-4 space-y-6">
             <div id="view-admin" class="hidden card p-4 border-dashed border-blue-900/50">
-                <h2 class="das-blue text-[10px] font-black uppercase mb-3 tracking-widest flex items-center">
-                    <i class="fas fa-shield-alt mr-2"></i> Monitor de Actividad
-                </h2>
+                <h2 class="das-blue text-[10px] font-black uppercase mb-3 tracking-widest">Monitor de Actividad</h2>
                 <div id="admin-logs" class="space-y-1 text-[10px] font-mono opacity-70 max-h-32 overflow-y-auto"></div>
             </div>
 
             <div id="view-cocina" class="hidden">
                 <h2 class="text-center text-[10px] font-bold uppercase mb-4 text-gray-500 tracking-widest">Despacho de Cocina</h2>
-                <div class="grid grid-cols-3 gap-3" id="botonera-cocina">
-                    </div>
+                <div class="grid grid-cols-3 gap-3" id="botonera-cocina"></div>
             </div>
 
             <div id="view-mozo" class="hidden space-y-4">
                 <h2 class="das-red text-[10px] font-black uppercase mb-2 tracking-widest">Pendientes de Retiro</h2>
-                <div id="lista-alertas" class="space-y-3">
-                    </div>
+                <div id="lista-alertas" class="space-y-3"></div>
             </div>
-
         </main>
 
         <section class="p-4 bg-[#050505] border-t border-gray-900">
-            <div id="chat-box" class="h-28 overflow-y-auto mb-3 space-y-2 p-3 text-[11px]">
-                </div>
+            <div id="chat-box" class="h-32 overflow-y-auto mb-3 space-y-2 p-1 text-[11px]"></div>
             <div class="flex gap-2">
                 <input type="text" id="chat-input" placeholder="Escribir mensaje..." class="flex-grow p-3 rounded-xl text-xs font-bold border-gray-800">
                 <button id="btn-enviar" class="bg-das-blue text-white w-12 h-10 rounded-xl flex items-center justify-center hover:bg-blue-600 active:scale-95 transition-all">
@@ -88,7 +84,6 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // TUS CREDENCIALES INTEGRADAS
         const firebaseConfig = {
             apiKey: "AIzaSyB_qivYXUASWoLB3zJcCpUOn44TokzzWro",
             authDomain: "pasaplatos-c9588.firebaseapp.com",
@@ -105,44 +100,40 @@
         let userRole = "";
         let userName = "";
 
-        // MANEJO DE LOGIN
         document.getElementById('btn-ingresar').onclick = async () => {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
-            if(!email || !pass) return alert("Completa los datos");
-            
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (e) {
-                alert("Acceso Denegado: Revisa tus credenciales");
-            }
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { alert("Acceso Denegado"); }
         };
 
         document.getElementById('btn-salir').onclick = () => signOut(auth);
 
-        // DETECTOR DE ESTADO DE USUARIO
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userName = user.email.split('@')[0];
-                // Lógica de roles basada en el email
-                if (user.email.includes("admin")) userRole = "admin";
-                else if (user.email.includes("cocina")) userRole = "cocina";
-                else userRole = "mozo";
-
+                userRole = user.email.includes("admin") ? "admin" : (user.email.includes("cocina") ? "cocina" : "mozo");
+                
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
+                
+                // MOSTRAR USUARIO Y ROL EN EL HEADER
+                document.getElementById('user-display').innerText = `Sesión: ${userName}`;
                 document.getElementById('role-tag').innerText = userRole;
                 
-                iniciarSistema();
-                registrarLog(`Conexión establecida`);
+                iniciarApp();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('app-screen').classList.add('hidden');
             }
         });
 
-        function iniciarSistema() {
-            // Control de vistas según rol
+        function iniciarApp() {
+            // Reset de vistas
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-cocina').classList.add('hidden');
+            document.getElementById('view-mozo').classList.add('hidden');
+
             if (userRole === "admin") {
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('view-cocina').classList.remove('hidden');
@@ -159,64 +150,46 @@
             escucharChat();
         }
 
-        // FUNCIONALIDAD: COCINA
         function generarBotonesCocina() {
             const cont = document.getElementById('botonera-cocina');
             cont.innerHTML = "";
             for (let i = 1; i <= 15; i++) {
-                cont.innerHTML += `
-                    <button onclick="marcarListo(${i})" class="card p-5 font-black text-xl hover:border-blue-600 active:bg-blue-900 transition-all">
-                        ${i}
-                    </button>
-                `;
+                cont.innerHTML += `<button onclick="marcarListo(${i})" class="card p-5 font-black text-xl active:bg-blue-900 transition-all">${i}</button>`;
             }
         }
 
-        window.marcarListo = async (numMesa) => {
-            await addDoc(collection(db, "pedidos"), {
-                mesa: numMesa,
-                status: "LISTO",
-                timestamp: serverTimestamp(),
-                chef: userName
-            });
-            registrarLog(`Mesa ${numMesa}: PLATO LISTO`);
+        window.marcarListo = async (num) => {
+            await addDoc(collection(db, "pedidos"), { mesa: num, status: "LISTO", timestamp: serverTimestamp(), chef: userName });
         };
 
-        // FUNCIONALIDAD: MOZO
+        window.entregarPedido = async (id) => {
+            await deleteDoc(doc(db, "pedidos", id));
+        };
+
         function escucharPlatosListos() {
             onSnapshot(query(collection(db, "pedidos"), where("status", "==", "LISTO")), (snap) => {
                 const lista = document.getElementById('lista-alertas');
                 lista.innerHTML = "";
                 snap.forEach(doc => {
-                    const data = doc.data();
+                    const d = doc.data();
                     lista.innerHTML += `
                         <div class="card p-4 flex justify-between items-center alerta-plato">
-                            <div>
-                                <p class="text-[9px] font-black text-das-red uppercase tracking-tighter">Pasar a retirar</p>
-                                <p class="text-2xl font-black italic">MESA ${data.mesa}</p>
-                            </div>
-                            <button onclick="entregarPedido('${doc.id}', ${data.mesa})" class="bg-white text-black px-5 py-2 rounded-xl font-black text-[10px] uppercase shadow-md shadow-white/10">
-                                Entregado
-                            </button>
-                        </div>
-                    `;
+                            <div><p class="text-2xl font-black">MESA ${d.mesa}</p></div>
+                            <button onclick="entregarPedido('${doc.id}')" class="bg-white text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase">Retirar</button>
+                        </div>`;
                 });
             });
         }
 
-        window.entregarPedido = async (id, mesa) => {
-            await deleteDoc(doc(db, "pedidos", id));
-            registrarLog(`Mesa ${mesa}: Pedido retirado por mozo`);
-        };
-
-        // CHAT EN TIEMPO REAL
+        // CHAT CON HORA
         document.getElementById('btn-enviar').onclick = async () => {
             const input = document.getElementById('chat-input');
             if (!input.value.trim()) return;
             await addDoc(collection(db, "chat"), {
                 user: userName,
                 text: input.value,
-                timestamp: serverTimestamp()
+                timestamp: serverTimestamp(),
+                hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
             input.value = "";
         };
@@ -224,24 +197,18 @@
         function escucharChat() {
             const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(15));
             onSnapshot(q, (snap) => {
-                const chatBox = document.getElementById('chat-box');
-                chatBox.innerHTML = "";
+                const box = document.getElementById('chat-box');
+                box.innerHTML = "";
                 let msgs = [];
                 snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
-                    chatBox.innerHTML += `<div><b class="das-blue uppercase tracking-tighter">${m.user}:</b> <span class="text-gray-300">${m.text}</span></div>`;
+                    box.innerHTML += `
+                        <div class="flex justify-between items-start border-b border-gray-900 pb-1">
+                            <span><b class="das-blue uppercase">${m.user}:</b> <span class="text-gray-300">${m.text}</span></span>
+                            <span class="text-[9px] text-gray-600 font-mono mt-0.5 ml-2">${m.hora || ''}</span>
+                        </div>`;
                 });
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
-        }
-
-        // LOGS Y AUDITORÍA
-        async function registrarLog(accion) {
-            await addDoc(collection(db, "logs"), {
-                user: userName,
-                msg: accion,
-                hora: new Date().toLocaleTimeString(),
-                timestamp: serverTimestamp()
+                box.scrollTop = box.scrollHeight;
             });
         }
 
@@ -256,7 +223,6 @@
                 });
             });
         }
-
     </script>
 </body>
 </html>
