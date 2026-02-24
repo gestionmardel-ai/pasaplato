@@ -11,26 +11,48 @@
         :root { --bg-main: #070b14; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #f1f5f9; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        .grid-mesas { display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; }
-        .btn-mesa-sq { aspect-ratio: 1.2 / 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 900; border-radius: 4px; border: 1px solid #1e293b; }
+        /* Tablero Adaptable: 6 columnas en móvil para botones grandes */
+        .grid-mesas { 
+            display: grid; 
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 6px; 
+        }
+        /* En pantallas más grandes (tablets/PC) vuelve a 16 */
+        @media (min-width: 768px) { .grid-mesas { grid-template-columns: repeat(16, 1fr); } }
+
+        .btn-mesa-sq { 
+            aspect-ratio: 1 / 1; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1rem; font-weight: 900; 
+            border-radius: 8px; border: 1px solid #1e293b; 
+        }
         .estado-libre { background: #0f172a; color: #475569; }
-        .estado-recibido { background: #16a34a !important; color: white; border-color: #064e3b; }
-        .estado-listo { background: #facc15 !important; color: black; border-color: #a16207; animation: pulse 1.5s infinite; }
+        .estado-recibido { background: #16a34a !important; color: white; }
+        .estado-listo { background: #facc15 !important; color: black; animation: pulse 1.5s infinite; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-        main { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
+        /* Contenedor principal con scroll real */
+        main { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px;
+            padding-bottom: 20px; /* Espacio extra para que la última mesa no pegue abajo */
+        }
 
         .card-movimiento { background: #111827; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #374151; }
         .card-verde { border-left-color: #16a34a; background: #064e3b20; }
         .card-amarilla { border-left-color: #facc15; background: #facc1515; }
 
-        .log-entry { font-family: 'Roboto Mono', monospace; font-size: 13px; background: #1e293b40; padding: 8px; border-radius: 6px; margin-bottom: 6px; border-bottom: 1px solid #334155; }
-        .log-user { color: #38bdf8; font-weight: bold; font-size: 11px; }
-        .chat-bubble { background: #ffffff !important; color: #000 !important; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; }
-
-        .footer-tools { display: flex; height: 230px; border-top: 1px solid #1e293b; background: #0a0f1d; }
+        /* Footer fijo para que no se desplace */
+        .footer-tools { display: flex; height: 240px; border-top: 1px solid #1e293b; background: #0a0f1d; flex-shrink: 0; }
         .footer-half { width: 50%; display: flex; flex-direction: column; padding: 10px; border-right: 1px solid #1e293b; }
+        
+        .log-entry { font-family: 'Roboto Mono', monospace; font-size: 12px; background: #1e293b40; padding: 6px; border-radius: 6px; margin-bottom: 6px; }
+        .chat-bubble { background: #ffffff !important; color: #000 !important; padding: 8px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -48,43 +70,42 @@
     </div>
 
     <div id="app-screen" class="hidden h-full flex flex-col">
-        <header class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-            <div class="italic font-black text-xl text-white">DASantini <span class="text-sky-400 text-xs not-italic font-bold">Pasaplatos</span></div>
+        <header class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center flex-shrink-0">
+            <div class="italic font-black text-xl text-white">DASantini</div>
             <div class="flex items-center gap-2">
-                <button id="btn-cerrar-turno" class="hidden bg-rose-600 text-white px-3 py-2 rounded-lg font-black text-[10px] uppercase hover:bg-rose-700 transition-colors mr-2">
-                    <i class="fas fa-file-download mr-1"></i> Cerrar Turno
-                </button>
+                <button id="btn-cerrar-turno" class="hidden bg-rose-600 text-white px-2 py-1.5 rounded-lg font-black text-[9px] uppercase mr-1">CERRAR TURNO</button>
                 <div class="text-right">
                     <span id="role-tag" class="text-[8px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase">---</span>
-                    <div id="user-display" class="text-lg font-bold text-white uppercase leading-none">---</div>
+                    <div id="user-display" class="text-sm font-bold text-white uppercase leading-none">---</div>
                 </div>
-                <button id="btn-salir" class="text-slate-500 text-2xl ml-2"><i class="fas fa-power-off"></i></button>
+                <button id="btn-salir" class="text-slate-500 text-xl ml-1"><i class="fas fa-power-off"></i></button>
             </div>
         </header>
 
-        <main>
+        <main id="main-scroll">
             <div id="panel-admin-tablero" class="hidden bg-[#111827] p-3 rounded-xl border border-slate-800">
                 <div id="grid-tablero" class="grid-mesas"></div>
             </div>
 
             <div class="space-y-3">
-                <h2 class="text-sky-400 text-xs font-black uppercase italic flex items-center gap-2">
-                    <i class="fas fa-exchange-alt"></i> Movimientos en Tiempo Real
+                <h2 class="text-sky-400 text-[10px] font-black uppercase italic flex items-center gap-2">
+                    <i class="fas fa-exchange-alt"></i> Movimientos Activos
                 </h2>
-                <div id="lista-movimientos" class="space-y-2"></div>
+                <div id="lista-movimientos" class="space-y-2">
+                    </div>
             </div>
         </main>
 
         <footer class="footer-tools">
             <div class="footer-half">
-                <h2 class="text-sky-500 text-[10px] font-black uppercase mb-2 italic">Historial Turno</h2>
-                <div id="admin-logs" class="flex-1 overflow-y-auto pr-2"></div>
+                <h2 class="text-sky-500 text-[9px] font-black uppercase mb-2">Historial</h2>
+                <div id="admin-logs" class="flex-1 overflow-y-auto pr-1"></div>
             </div>
             <div class="footer-half" style="border-right:none">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-2 pr-1"></div>
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-3 mb-2 pr-1"></div>
                 <div class="flex gap-1">
-                    <input type="text" id="chat-input" placeholder="Mensaje..." class="flex-grow p-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm outline-none">
-                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-4 rounded-xl"><i class="fas fa-paper-plane"></i></button>
+                    <input type="text" id="chat-input" placeholder="..." class="flex-grow p-2 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs outline-none">
+                    <button id="btn-enviar" class="bg-sky-500 text-slate-900 px-3 rounded-lg"><i class="fas fa-paper-plane text-xs"></i></button>
                 </div>
             </div>
         </footer>
@@ -195,19 +216,18 @@
                     lista.innerHTML += `
                         <div class="card-movimiento ${esListo ? 'card-amarilla' : 'card-verde'} shadow-lg">
                             <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-2xl font-black italic text-white uppercase">MESA ${data.mesa}</span>
-                                    <span class="text-[10px] px-2 py-0.5 rounded font-black ${esListo ? 'bg-yellow-500 text-black' : 'bg-green-600 text-white'}">${esListo ? 'PARA RETIRAR' : 'EN COCINA'}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl font-black italic text-white">MESA ${data.mesa}</span>
+                                    <span class="text-[8px] px-1.5 py-0.5 rounded font-black ${esListo ? 'bg-yellow-500 text-black' : 'bg-green-600 text-white'}">${esListo ? 'LISTO' : 'COCINA'}</span>
                                 </div>
-                                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">E: ${data.h_recibido} (${data.user_recibido}) ${esListo ? `| L: ${data.h_listo} (${data.user_listo})` : ''}</div>
+                                <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">E: ${data.h_recibido} ${esListo ? `| L: ${data.h_listo}` : ''}</div>
                             </div>
-                            ${esListo ? `<button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-5 py-3 rounded-xl font-black text-xs active:scale-95">ENTREGADO</button>` : ''}
+                            ${esListo ? `<button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl font-black text-[10px] active:scale-95 shadow-md">ENTREGAR</button>` : ''}
                         </div>`;
                 });
             });
         }
 
-        // --- CÁLCULO DE MINUTOS ---
         function calcularMinutos(h1, h2) {
             if(!h1 || !h2 || h1 === "--" || h2 === "--") return "0";
             try {
@@ -220,7 +240,7 @@
         }
 
         function escucharHistorialTiempos() {
-            const q = query(collection(db, "historial_tiempos"), orderBy("timestamp", "desc"), limit(100));
+            const q = query(collection(db, "historial_tiempos"), orderBy("timestamp", "desc"), limit(50));
             onSnapshot(q, (snap) => {
                 const cont = document.getElementById('admin-logs'); cont.innerHTML = "";
                 logsActuales = [];
@@ -228,16 +248,7 @@
                     const data = d.data();
                     logsActuales.push(data);
                     const demora = calcularMinutos(data.rec, data.ret);
-                    cont.innerHTML += `
-                    <div class="log-entry">
-                        <div class="flex justify-between items-center mb-1">
-                            <b>MESA ${data.mesa}</b>
-                            <span class="bg-sky-900/50 text-sky-300 text-[10px] px-1.5 py-0.5 rounded font-bold border border-sky-800">⏱️ ${demora} min</span>
-                        </div>
-                        <span class="text-green-500 text-[10px]">ENTRÓ:</span> ${data.rec} (${data.uRec})<br>
-                        <span class="text-yellow-500 text-[10px]">LISTO:</span> ${data.lis} (${data.uLis})<br>
-                        <span class="text-sky-500 text-[10px]">SALIÓ:</span> ${data.ret} (${data.uRet})
-                    </div>`;
+                    cont.innerHTML += `<div class="log-entry"><div class="flex justify-between items-center mb-1"><b>MESA ${data.mesa}</b><span class="text-sky-300 text-[9px] font-bold border border-sky-800 px-1 rounded">⏱️ ${demora}m</span></div><div class="text-[9px] text-slate-400">E:${data.rec} | S:${data.ret}</div></div>`;
                 });
             });
         }
@@ -248,7 +259,7 @@
                 const box = document.getElementById('chat-box'); box.innerHTML = "";
                 let msgs = []; snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
-                    box.innerHTML += `<div class="flex flex-col items-start"><div class="flex justify-between w-full px-1"><span class="text-[9px] font-black text-sky-400 uppercase">${m.user}</span><span class="text-[8px] bg-black text-white px-1 rounded">${m.hora}</span></div><div class="chat-bubble w-full shadow-md">${m.text}</div></div>`;
+                    box.innerHTML += `<div class="flex flex-col items-start"><span class="text-[8px] font-black text-sky-400 uppercase ml-1">${m.user}</span><div class="chat-bubble w-full shadow-sm">${m.text}</div></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
@@ -262,15 +273,12 @@
         };
 
         document.getElementById('btn-cerrar-turno').onclick = async () => {
-            if (!confirm("¿Cerrar turno? Se bajará el reporte y se borrará todo.")) return;
-            let reporte = `REPORTE ESTADÍSTICO - DASANTINI\nFECHA: ${new Date().toLocaleDateString()}\nCOMANDAS: ${logsActuales.length}\n------------------------------------------\n\n`;
-            let suma = 0, validos = 0;
+            if (!confirm("¿Cerrar turno y bajar reporte?")) return;
+            let reporte = `REPORTE DASANTINI\nFECHA: ${new Date().toLocaleDateString()}\n------------------\n`;
             logsActuales.forEach(l => {
                 const d = calcularMinutos(l.rec, l.ret);
-                suma += parseFloat(d); if(parseFloat(d) > 0) validos++;
-                reporte += `MESA ${l.mesa} -> DEMORA: ${d} min [E: ${l.rec} | S: ${l.ret}]\n`;
+                reporte += `MESA ${l.mesa} | Demora: ${d} min | E:${l.rec} S:${l.ret}\n`;
             });
-            reporte += `\nPROMEDIO TURNO: ${validos > 0 ? (suma/validos).toFixed(1) : 0} MINUTOS.`;
             const blob = new Blob([reporte], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -285,7 +293,7 @@
             colHistorial.forEach(d => batch.delete(d.ref));
             colChat.forEach(d => batch.delete(d.ref));
             await batch.commit();
-            alert("Sistema Reiniciado.");
+            alert("Turno Cerrado");
         };
     </script>
 </body>
