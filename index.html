@@ -11,15 +11,8 @@
         :root { --bg-main: #070b14; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #f1f5f9; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Tablero 3 filas x 16 mesas */
         .grid-mesas { display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; }
-        .btn-mesa-sq {
-            aspect-ratio: 1.2 / 1;
-            display: flex;
-            align-items: center; justify-content: center;
-            font-size: 0.85rem; font-weight: 900;
-            border-radius: 4px; border: 1px solid #1e293b;
-        }
+        .btn-mesa-sq { aspect-ratio: 1.2 / 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 900; border-radius: 4px; border: 1px solid #1e293b; }
         .estado-libre { background: #0f172a; color: #475569; }
         .estado-recibido { background: #16a34a !important; color: white; border-color: #064e3b; }
         .estado-listo { background: #facc15 !important; color: black; border-color: #a16207; animation: pulse 1.5s infinite; }
@@ -28,16 +21,10 @@
 
         main { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
 
-        /* Tarjetas de Movimiento Mozo */
-        .card-movimiento {
-            background: #111827; border-radius: 12px; padding: 12px;
-            display: flex; justify-content: justify-between; align-items: center;
-            border-left: 5px solid #374151; transition: all 0.3s;
-        }
+        .card-movimiento { background: #111827; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #374151; }
         .card-verde { border-left-color: #16a34a; background: #064e3b20; }
         .card-amarilla { border-left-color: #facc15; background: #facc1515; }
 
-        /* Historial y Chat */
         .log-entry { font-family: 'Roboto Mono', monospace; font-size: 13px; background: #1e293b40; padding: 8px; border-radius: 6px; margin-bottom: 6px; border-bottom: 1px solid #334155; }
         .log-user { color: #38bdf8; font-weight: bold; font-size: 11px; }
         .chat-bubble { background: #ffffff !important; color: #000 !important; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; }
@@ -63,7 +50,10 @@
     <div id="app-screen" class="hidden h-full flex flex-col">
         <header class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
             <div class="italic font-black text-xl text-white">DASantini <span class="text-sky-400 text-xs not-italic font-bold">Pasaplatos</span></div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <button id="btn-cerrar-turno" class="hidden bg-rose-600 text-white px-3 py-2 rounded-lg font-black text-[10px] uppercase hover:bg-rose-700 transition-colors mr-2">
+                    <i class="fas fa-file-download mr-1"></i> Cerrar Turno
+                </button>
                 <div class="text-right">
                     <span id="role-tag" class="text-[8px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase">---</span>
                     <div id="user-display" class="text-lg font-bold text-white uppercase leading-none">---</div>
@@ -81,14 +71,13 @@
                 <h2 class="text-sky-400 text-xs font-black uppercase italic flex items-center gap-2">
                     <i class="fas fa-exchange-alt"></i> Movimientos en Tiempo Real
                 </h2>
-                <div id="lista-movimientos" class="space-y-2">
-                    </div>
+                <div id="lista-movimientos" class="space-y-2"></div>
             </div>
         </main>
 
         <footer class="footer-tools">
             <div class="footer-half">
-                <h2 class="text-sky-500 text-[10px] font-black uppercase mb-2">Historial de Turno</h2>
+                <h2 class="text-sky-500 text-[10px] font-black uppercase mb-2 italic">Historial Turno</h2>
                 <div id="admin-logs" class="flex-1 overflow-y-auto pr-2"></div>
             </div>
             <div class="footer-half" style="border-right:none">
@@ -104,7 +93,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, limit, setDoc, getDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, doc, deleteDoc, serverTimestamp, orderBy, limit, setDoc, getDoc, updateDoc, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB_qivYXUASWoLB3zJcCpUOn44TokzzWro",
@@ -120,6 +109,7 @@
         const db = getFirestore(app);
 
         let userRole = ""; let userName = "";
+        let logsActuales = [];
 
         document.getElementById('btn-ingresar').onclick = async () => {
             const email = document.getElementById('log-email').value;
@@ -136,6 +126,7 @@
                 document.getElementById('app-screen').classList.remove('hidden');
                 document.getElementById('user-display').innerText = userName;
                 document.getElementById('role-tag').innerText = userRole;
+                if(userRole === 'admin') document.getElementById('btn-cerrar-turno').classList.remove('hidden');
                 iniciarApp();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -171,7 +162,7 @@
             } else {
                 const data = docSnap.data();
                 if (data.estado === 'recibido') {
-                    await updateDoc(mesaRef, { estado: 'listo', h_listo: ahora, user_listo: userName, t_sort: Date.now() + 1000000 }); // Sube prioridad
+                    await updateDoc(mesaRef, { estado: 'listo', h_listo: ahora, user_listo: userName, t_sort: Date.now() + 1000000 });
                 } else if (data.estado === 'listo' && userRole === "admin") {
                     await retirarMesa(mesaId, data.h_recibido, data.user_recibido, data.h_listo, data.user_listo);
                 }
@@ -188,25 +179,17 @@
 
         function escucharEstadosMesas() {
             onSnapshot(collection(db, "estado_mesas"), (snap) => {
-                // Actualizar Tablero
                 document.querySelectorAll('.btn-mesa-sq').forEach(b => b.className = "btn-mesa-sq estado-libre");
-                
-                // Actualizar Lista de Movimientos (Mozos y Admin)
                 const lista = document.getElementById('lista-movimientos');
                 lista.innerHTML = "";
-                
                 let activas = [];
                 snap.forEach(d => {
                     const data = d.data();
                     activas.push(data);
-                    // Pintar tablero si existe
                     const btn = document.getElementById(`mesa-${data.mesa}`);
                     if (btn) btn.className = `btn-mesa-sq estado-${data.estado}`;
                 });
-
-                // Ordenar: Primero las 'listo' (amarillo), luego 'recibido' (verde), y por tiempo
                 activas.sort((a,b) => b.t_sort - a.t_sort);
-
                 activas.forEach(data => {
                     const esListo = data.estado === 'listo';
                     lista.innerHTML += `
@@ -214,33 +197,50 @@
                             <div class="flex-1">
                                 <div class="flex items-center gap-3">
                                     <span class="text-2xl font-black italic text-white uppercase">MESA ${data.mesa}</span>
-                                    <span class="text-[10px] px-2 py-0.5 rounded font-black ${esListo ? 'bg-yellow-500 text-black' : 'bg-green-600 text-white'}">
-                                        ${esListo ? 'PARA RETIRAR' : 'EN COCINA'}
-                                    </span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded font-black ${esListo ? 'bg-yellow-500 text-black' : 'bg-green-600 text-white'}">${esListo ? 'PARA RETIRAR' : 'EN COCINA'}</span>
                                 </div>
-                                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">
-                                    ENTRÓ: ${data.h_recibido} (${data.user_recibido}) ${esListo ? `| LISTO: ${data.h_listo} (${data.user_listo})` : ''}
-                                </div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">E: ${data.h_recibido} (${data.user_recibido}) ${esListo ? `| L: ${data.h_listo} (${data.user_listo})` : ''}</div>
                             </div>
-                            ${esListo ? `
-                                <button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" 
-                                class="bg-yellow-500 text-black px-5 py-3 rounded-xl font-black text-xs active:scale-95 shadow-lg shadow-yellow-500/20">
-                                    ENTREGADO
-                                </button>` : ''}
+                            ${esListo ? `<button onclick="retirarMesa('${data.mesa}','${data.h_recibido}','${data.user_recibido}','${data.h_listo}','${data.user_listo}')" class="bg-yellow-500 text-black px-5 py-3 rounded-xl font-black text-xs active:scale-95">ENTREGADO</button>` : ''}
                         </div>`;
                 });
             });
         }
 
-        document.getElementById('btn-enviar').onclick = async () => {
-            const input = document.getElementById('chat-input');
-            if (!input.value.trim()) return;
-            const m = input.value; input.value = "";
-            await addDoc(collection(db, "chat"), {
-                user: userName, text: m, timestamp: serverTimestamp(),
-                hora: new Date().toLocaleTimeString('es-AR', { hour12: false, hour: '2-digit', minute: '2-digit' })
+        // --- CÁLCULO DE MINUTOS ---
+        function calcularMinutos(h1, h2) {
+            if(!h1 || !h2 || h1 === "--" || h2 === "--") return "0";
+            try {
+                const [hr1, m1, s1] = h1.split(':').map(Number);
+                const [hr2, m2, s2] = h2.split(':').map(Number);
+                const t1 = (hr1 * 3600) + (m1 * 60) + (s1 || 0);
+                const t2 = (hr2 * 3600) + (m2 * 60) + (s2 || 0);
+                return Math.abs((t2 - t1) / 60).toFixed(1);
+            } catch(e) { return "0"; }
+        }
+
+        function escucharHistorialTiempos() {
+            const q = query(collection(db, "historial_tiempos"), orderBy("timestamp", "desc"), limit(100));
+            onSnapshot(q, (snap) => {
+                const cont = document.getElementById('admin-logs'); cont.innerHTML = "";
+                logsActuales = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    logsActuales.push(data);
+                    const demora = calcularMinutos(data.rec, data.ret);
+                    cont.innerHTML += `
+                    <div class="log-entry">
+                        <div class="flex justify-between items-center mb-1">
+                            <b>MESA ${data.mesa}</b>
+                            <span class="bg-sky-900/50 text-sky-300 text-[10px] px-1.5 py-0.5 rounded font-bold border border-sky-800">⏱️ ${demora} min</span>
+                        </div>
+                        <span class="text-green-500 text-[10px]">ENTRÓ:</span> ${data.rec} (${data.uRec})<br>
+                        <span class="text-yellow-500 text-[10px]">LISTO:</span> ${data.lis} (${data.uLis})<br>
+                        <span class="text-sky-500 text-[10px]">SALIÓ:</span> ${data.ret} (${data.uRet})
+                    </div>`;
+                });
             });
-        };
+        }
 
         function escucharChat() {
             const q = query(collection(db, "chat"), orderBy("timestamp", "desc"), limit(12));
@@ -248,32 +248,45 @@
                 const box = document.getElementById('chat-box'); box.innerHTML = "";
                 let msgs = []; snap.forEach(doc => msgs.push(doc.data()));
                 msgs.reverse().forEach(m => {
-                    box.innerHTML += `
-                        <div class="flex flex-col items-start space-y-1">
-                            <div class="flex justify-between w-full px-1"><span class="text-[9px] font-black text-sky-400 uppercase">${m.user}</span><span class="text-[8px] bg-black text-white px-1 rounded">${m.hora}</span></div>
-                            <div class="chat-bubble w-full shadow-md">${m.text}</div>
-                        </div>`;
+                    box.innerHTML += `<div class="flex flex-col items-start"><div class="flex justify-between w-full px-1"><span class="text-[9px] font-black text-sky-400 uppercase">${m.user}</span><span class="text-[8px] bg-black text-white px-1 rounded">${m.hora}</span></div><div class="chat-bubble w-full shadow-md">${m.text}</div></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
         }
 
-        function escucharHistorialTiempos() {
-            const q = query(collection(db, "historial_tiempos"), orderBy("timestamp", "desc"), limit(20));
-            onSnapshot(q, (snap) => {
-                const cont = document.getElementById('admin-logs'); cont.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    cont.innerHTML += `
-                    <div class="log-entry">
-                        <b>MESA ${data.mesa}</b><br>
-                        <span class="text-green-500">E:</span> ${data.rec} <span class="log-user">(${data.uRec})</span><br>
-                        <span class="text-yellow-500">L:</span> ${data.lis} <span class="log-user">(${data.uLis})</span><br>
-                        <span class="text-sky-500">S:</span> ${data.ret} <span class="log-user">(${data.uRet})</span>
-                    </div>`;
-                });
+        document.getElementById('btn-enviar').onclick = async () => {
+            const input = document.getElementById('chat-input');
+            if (!input.value.trim()) return;
+            const m = input.value; input.value = "";
+            await addDoc(collection(db, "chat"), { user: userName, text: m, timestamp: serverTimestamp(), hora: new Date().toLocaleTimeString('es-AR', { hour12: false, hour: '2-digit', minute: '2-digit' }) });
+        };
+
+        document.getElementById('btn-cerrar-turno').onclick = async () => {
+            if (!confirm("¿Cerrar turno? Se bajará el reporte y se borrará todo.")) return;
+            let reporte = `REPORTE ESTADÍSTICO - DASANTINI\nFECHA: ${new Date().toLocaleDateString()}\nCOMANDAS: ${logsActuales.length}\n------------------------------------------\n\n`;
+            let suma = 0, validos = 0;
+            logsActuales.forEach(l => {
+                const d = calcularMinutos(l.rec, l.ret);
+                suma += parseFloat(d); if(parseFloat(d) > 0) validos++;
+                reporte += `MESA ${l.mesa} -> DEMORA: ${d} min [E: ${l.rec} | S: ${l.ret}]\n`;
             });
-        }
+            reporte += `\nPROMEDIO TURNO: ${validos > 0 ? (suma/validos).toFixed(1) : 0} MINUTOS.`;
+            const blob = new Blob([reporte], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Reporte_${new Date().toLocaleDateString().replace(/\//g, '-')}.txt`;
+            link.click();
+
+            const batch = writeBatch(db);
+            const colMesas = await getDocs(collection(db, "estado_mesas"));
+            const colHistorial = await getDocs(collection(db, "historial_tiempos"));
+            const colChat = await getDocs(collection(db, "chat"));
+            colMesas.forEach(d => batch.delete(d.ref));
+            colHistorial.forEach(d => batch.delete(d.ref));
+            colChat.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+            alert("Sistema Reiniciado.");
+        };
     </script>
 </body>
 </html>
